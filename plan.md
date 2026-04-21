@@ -106,7 +106,9 @@ Each chunk is sized for a single Claude Code subagent session. Each ends with a 
 
 ---
 
-### Chunk 1: Repo scaffolding + data model
+### Chunk 1: Repo scaffolding + data model ✅
+
+**Status:** Complete. `python -m shoe_tracker init-db` + `python -m shoe_tracker rotation list` produces the expected checkpoint output.
 
 **Goal:** Repo exists, schema is defined, config loads cleanly.
 
