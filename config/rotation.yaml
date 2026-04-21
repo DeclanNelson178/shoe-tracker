@@ -1,0 +1,12 @@
+user_email: me@example.com
+
+shoes:
+  - brand: ASICS
+    model: Novablast
+    version: "5"
+    gender: mens
+    size: 10.5
+    width: D
+    colorway_policy: any
+    threshold_usd: 100
+    mfr_style_prefix: "1011B867"
