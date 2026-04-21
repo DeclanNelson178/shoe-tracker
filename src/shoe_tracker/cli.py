@@ -6,6 +6,7 @@ from pathlib import Path
 import click
 
 from . import config as config_mod
+from .adapters import ADAPTERS, VariantPrice, get_adapter
 from .db import (
     Database,
     RetailerMappingRepo,
@@ -132,15 +133,87 @@ def rotation_evaluate() -> None:
 
 
 @main.command()
-@click.argument("retailer")
-@click.option("--canonical", required=True)
-@click.option("--gender", default="mens")
-def probe(retailer: str, canonical: str, gender: str) -> None:
-    """Probe a retailer for a canonical shoe. (implemented in chunk 2)"""
-    raise click.ClickException("not implemented yet — see chunk 2 in plan.md")
+@click.argument("retailer", type=click.Choice(sorted(ADAPTERS)))
+@click.option("--canonical", required=True,
+              help='Canonical shoe name, e.g. "ASICS Novablast 5".')
+@click.option("--gender", type=click.Choice(["mens", "womens", "unisex"]), default="mens")
+@click.option("--variant-type", default=None,
+              help='Optional: "GTX", "Wide", "Trail".')
+@click.option("--size-min", type=float, default=None, help="Filter output to sizes ≥ this.")
+@click.option("--size-max", type=float, default=None, help="Filter output to sizes ≤ this.")
+@click.option("--width", default=None, help="Filter output to this width (e.g. 'D', '2E').")
+def probe(
+    retailer: str,
+    canonical: str,
+    gender: str,
+    variant_type: str | None,
+    size_min: float | None,
+    size_max: float | None,
+    width: str | None,
+) -> None:
+    """Probe a retailer end-to-end for a canonical shoe.
+
+    Runs the retailer's search, then fetches variant data from each candidate
+    product page and prints every variant found. No DB writes — this is a
+    human-facing sanity check.
+    """
+    shoe = _parse_canonical(canonical, gender=gender, variant_type=variant_type)
+    adapter = get_adapter(retailer)
+    results = adapter.search(shoe)
+    if not results:
+        raise click.ClickException(f"No results from {retailer} for '{canonical}'.")
+
+    click.echo(f"Searched {retailer} for {shoe.display_name} ({gender}) — {len(results)} candidates.")
+    all_variants: list[VariantPrice] = []
+    for r in results:
+        click.echo(f"  • {r.title} — {r.colorway_name or '?'} — {r.product_url}")
+        all_variants.extend(adapter.fetch_variants(r.product_url))
+
+    filtered = [
+        v for v in all_variants
+        if (size_min is None or v.size >= size_min)
+        and (size_max is None or v.size <= size_max)
+        and (width is None or v.width == width)
+    ]
+    click.echo("")
+    click.echo(f"Variants ({len(filtered)} of {len(all_variants)} shown):")
+    for v in sorted(filtered, key=lambda x: (x.size, x.colorway_name, x.width)):
+        marker = "in stock" if v.in_stock else "out of stock"
+        click.echo(
+            f"  {_fmt_size(v.size):>5} / {v.width:<3} {v.colorway_name:<32} "
+            f"${v.price_usd:>7.2f}  {marker}"
+        )
 
 
 # --- helpers ---
+
+def _parse_canonical(canonical: str, *, gender: str, variant_type: str | None) -> CanonicalShoe:
+    """Split a '<Brand> <Model> [version]' string into a CanonicalShoe.
+
+    The probe command takes a free-form canonical name to keep the invocation
+    friendly. The mapping engine in chunk 3 will use richer matching; here we
+    just need enough structure for the search URL.
+    """
+    tokens = canonical.split()
+    if len(tokens) < 2:
+        raise click.ClickException(
+            f"Canonical name must be '<Brand> <Model> [version]' (got: {canonical!r})."
+        )
+    brand = tokens[0]
+    # A trailing token that looks like a version (digit or digits+letter) peels off.
+    version: str | None = None
+    body = tokens[1:]
+    if body and (body[-1].isdigit() or (body[-1][:-1].isdigit() and body[-1][-1].isalpha())):
+        version = body[-1]
+        body = body[:-1]
+    if not body:
+        raise click.ClickException(f"Canonical name is missing the model: {canonical!r}.")
+    model = " ".join(body)
+    return CanonicalShoe(
+        brand=brand, model=model, version=version,
+        gender=gender, variant_type=variant_type,  # type: ignore[arg-type]
+    )
+
 
 def _sync_rotation(db: Database, cfg: RotationConfig) -> int:
     UserRepo(db).upsert(User(id="me", email=cfg.user_email))

@@ -12,6 +12,11 @@ See `plan.md` for the full build plan.
 pip install -e .[dev]
 python -m shoe_tracker init-db
 python -m shoe_tracker rotation list
+
+# Probe a retailer end-to-end (hits the real site):
+python -m shoe_tracker probe running_warehouse \
+  --canonical "ASICS Novablast 5" --gender mens \
+  --size-min 10 --size-max 11 --width D
 ```
 
 Edit `config/rotation.yaml` to add shoes.
@@ -24,8 +29,17 @@ src/shoe_tracker/          # package
   config.py                # rotation.yaml loader
   db.py                    # sqlite + repository pattern
   cli.py                   # command-line entrypoint
+  adapters/                # retailer scrapers (RetailerAdapter + per-retailer)
   db/migrations/           # SQL schema migrations
 config/rotation.yaml       # the watchlist (hand-edited)
-tests/                     # pytest suite
+docs/retailers/            # per-retailer scraping notes
+tests/                     # pytest suite (live tests env-gated)
 plan.md                    # build plan
+```
+
+## Testing
+
+```bash
+pytest                         # unit tests, offline
+SHOE_TRACKER_LIVE=1 pytest -m live    # hits real retailer sites
 ```
