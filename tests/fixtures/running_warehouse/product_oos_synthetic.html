@@ -1,0 +1,64 @@
+<!doctype html>
+<!--
+  Synthetic fixture: Running Warehouse product page shape with a mix of
+  in-stock, "In Stock: 0" (explicit OOS), and Notify-Me rows. Real RW tends
+  to simply hide sold-out sizes, so this fixture exists specifically to prove
+  the parser handles explicit-OOS markup too.
+  Product: ASICS Novablast 5 Men's "Safety Yellow" (fictional colorway)
+-->
+<html>
+<head><title>ASICS Novablast 5 Men's Shoes Safety Yellow | Running Warehouse</title></head>
+<body>
+  <h1 class="desc_top-head-title" data-code="ANB5M9" itemprop="name">ASICS Novablast 5</h1>
+  <div class="desc_top-head-style">Men's Shoes - Safety Yellow</div>
+  <img itemprop="image" src="https://img.runningwarehouse.com/watermark/rs.php?path=ANB5M9-1.jpg&nw=455" />
+  <p><b>Model Number:</b> 1011B974.750</p>
+  <table>
+    <tr class="js-ordering-subproduct subproduct cf"
+        itemprop="offers" itemscope itemtype="http://schema.org/Offer"
+        data-code="ANB5M9100D" data-list-price="150.00">
+      <td>
+        <strong class="js-ordering-name name" itemprop="itemOffered">ASICS Novablast 5 Men Shoe Safety Yel 10.0 D</strong>
+        <div class="cf">
+          <div class="fl stock"><strong>In Stock:</strong>
+            <span class="js-ordering-available available">3</span>
+          </div>
+          <div class="fr"><strong>Price:</strong>
+            $<span class="js-ordering-price price">74.95</span>
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr class="js-ordering-subproduct subproduct cf"
+        itemprop="offers" itemscope itemtype="http://schema.org/Offer"
+        data-code="ANB5M9105D" data-list-price="150.00">
+      <td>
+        <strong class="js-ordering-name name" itemprop="itemOffered">ASICS Novablast 5 Men Shoe Safety Yel 10.5 D</strong>
+        <div class="cf">
+          <div class="fl stock"><strong>In Stock:</strong>
+            <span class="js-ordering-available available">0</span>
+          </div>
+          <div class="fr"><strong>Price:</strong>
+            $<span class="js-ordering-price price">74.95</span>
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr class="js-ordering-subproduct subproduct cf js-ordering-out-of-stock"
+        itemprop="offers" itemscope itemtype="http://schema.org/Offer"
+        data-code="ANB5M9110D" data-list-price="150.00">
+      <td>
+        <strong class="js-ordering-name name" itemprop="itemOffered">ASICS Novablast 5 Men Shoe Safety Yel 11.0 D</strong>
+        <div class="cf">
+          <div class="fr"><strong>Price:</strong>
+            $<span class="js-ordering-price price">74.95</span>
+          </div>
+          <div class="fl">
+            <a class="js-notify-me" href="/notify-me.html?code=ANB5M9110D">Notify Me When Available</a>
+          </div>
+        </div>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

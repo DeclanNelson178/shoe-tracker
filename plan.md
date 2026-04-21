@@ -130,7 +130,9 @@ python -m shoe_tracker rotation list
 
 ---
 
-### Chunk 2: Running Warehouse adapter + adapter interface
+### Chunk 2: Running Warehouse adapter + adapter interface ✅
+
+**Status:** Complete. `python -m shoe_tracker probe running_warehouse --canonical "ASICS Novablast 5" --gender mens --size-min 10 --size-max 11 --width D` returns real per-colorway pricing from RW (≈40 D-width variants across ~15 colorways).
 
 **Goal:** One retailer working end-to-end with variant-level data, adapter interface locked in.
 
