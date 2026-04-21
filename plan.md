@@ -166,7 +166,9 @@ Real data from real RW with real colorway-specific pricing. This is the moment t
 
 ---
 
-### Chunk 3: Mapping engine with confidence tiers
+### Chunk 3: Mapping engine with confidence tiers ✅
+
+**Status:** Complete. `python -m shoe_tracker rotation map --retailer running_warehouse` resolves `ASICS Novablast 5 → running_warehouse: mapped (0.95) → <url>` and `rotation status` reports the cheapest in-stock variant for the mapped entry. Flagged mappings (0.6–0.9) are written to `docs/mapping_review.md`.
 
 **Goal:** Given a canonical shoe, auto-resolve per-retailer product URLs with confidence scoring.
 
