@@ -1,0 +1,30 @@
+<!doctype html>
+<!--
+  Synthetic fixture: JackRabbit search results page.
+  URL: https://www.jackrabbit.com/search?q=ASICS+Novablast+5
+
+  JackRabbit runs on Shopify. The search page renders `.grid-product__card`
+  anchors for each product. One URL per product (mens + womens are different
+  products), with all colorways & sizes living on the product page as Shopify
+  variants. The adapter dedupes colorways by parsing the variant list on the
+  PDP.
+-->
+<html>
+<head><title>Search: ASICS Novablast 5 – JackRabbit</title></head>
+<body>
+  <section class="search-results-grid">
+    <a class="grid-product__card" href="/products/asics-novablast-5-mens" data-product-id="7123456789">
+      <h3 class="grid-product__title">ASICS Men's Novablast 5</h3>
+      <span class="grid-product__price">$149.95</span>
+    </a>
+    <a class="grid-product__card" href="/products/asics-novablast-5-womens" data-product-id="7123456790">
+      <h3 class="grid-product__title">ASICS Women's Novablast 5</h3>
+      <span class="grid-product__price">$149.95</span>
+    </a>
+    <a class="grid-product__card" href="/products/asics-novablast-5-gtx-mens" data-product-id="7123456791">
+      <h3 class="grid-product__title">ASICS Men's Novablast 5 GTX</h3>
+      <span class="grid-product__price">$169.95</span>
+    </a>
+  </section>
+</body>
+</html>

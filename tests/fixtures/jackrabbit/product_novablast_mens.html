@@ -1,0 +1,44 @@
+<!doctype html>
+<!--
+  Synthetic fixture: JackRabbit (Shopify) PDP with inline ProductJson.
+  URL: https://www.jackrabbit.com/products/asics-novablast-5-mens
+
+  Shopify ships every variant in an inline <script type="application/json"
+  id="ProductJson-...">. Option shape is three strings (size, color, width)
+  plus a cents-valued price and an `available` boolean. The adapter reads
+  that JSON and ignores the rendered picker (the picker is hydrated from the
+  same data).
+-->
+<html>
+<head><title>ASICS Men's Novablast 5 – JackRabbit</title></head>
+<body>
+  <h1 class="product-title">ASICS Men's Novablast 5</h1>
+  <img class="product-main-image" src="https://cdn.shopify.com/s/files/1/novablast5/gravel.jpg"/>
+
+  <script type="application/json" id="ProductJson-product-template">
+  {
+    "id": 7123456789,
+    "title": "ASICS Men's Novablast 5",
+    "vendor": "ASICS",
+    "handle": "asics-novablast-5-mens",
+    "featured_image": "https://cdn.shopify.com/s/files/1/novablast5/gravel.jpg",
+    "options": ["Size", "Color", "Width"],
+    "variants": [
+      {"id": 1, "option1": "9",    "option2": "Gravel/White",         "option3": "D",  "price": 14995, "available": true,  "sku": "ASI-1011B974-020-090D", "featured_image": {"src": "https://cdn.shopify.com/s/files/1/novablast5/gravel.jpg"}},
+      {"id": 2, "option1": "9.5",  "option2": "Gravel/White",         "option3": "D",  "price": 14995, "available": true,  "sku": "ASI-1011B974-020-095D", "featured_image": {"src": "https://cdn.shopify.com/s/files/1/novablast5/gravel.jpg"}},
+      {"id": 3, "option1": "10",   "option2": "Gravel/White",         "option3": "D",  "price": 14995, "available": true,  "sku": "ASI-1011B974-020-100D", "featured_image": {"src": "https://cdn.shopify.com/s/files/1/novablast5/gravel.jpg"}},
+      {"id": 4, "option1": "10.5", "option2": "Gravel/White",         "option3": "D",  "price": 14995, "available": true,  "sku": "ASI-1011B974-020-105D", "featured_image": {"src": "https://cdn.shopify.com/s/files/1/novablast5/gravel.jpg"}},
+      {"id": 5, "option1": "11",   "option2": "Gravel/White",         "option3": "D",  "price": 14995, "available": true,  "sku": "ASI-1011B974-020-110D", "featured_image": {"src": "https://cdn.shopify.com/s/files/1/novablast5/gravel.jpg"}},
+      {"id": 6, "option1": "11.5", "option2": "Gravel/White",         "option3": "D",  "price": 14995, "available": false, "sku": "ASI-1011B974-020-115D", "featured_image": {"src": "https://cdn.shopify.com/s/files/1/novablast5/gravel.jpg"}},
+      {"id": 7, "option1": "12",   "option2": "Gravel/White",         "option3": "D",  "price": 14995, "available": true,  "sku": "ASI-1011B974-020-120D", "featured_image": {"src": "https://cdn.shopify.com/s/files/1/novablast5/gravel.jpg"}},
+      {"id": 8, "option1": "10",   "option2": "Gravel/White",         "option3": "2E", "price": 14995, "available": true,  "sku": "ASI-1011B974-020-100E", "featured_image": {"src": "https://cdn.shopify.com/s/files/1/novablast5/gravel.jpg"}},
+      {"id": 9, "option1": "10.5", "option2": "Gravel/White",         "option3": "2E", "price": 14995, "available": false, "sku": "ASI-1011B974-020-105E", "featured_image": {"src": "https://cdn.shopify.com/s/files/1/novablast5/gravel.jpg"}},
+      {"id": 10,"option1": "9",    "option2": "Black/Mint",           "option3": "D",  "price": 11995, "available": true,  "sku": "ASI-1011B974-001-090D", "featured_image": {"src": "https://cdn.shopify.com/s/files/1/novablast5/blackmint.jpg"}},
+      {"id": 11,"option1": "10",   "option2": "Black/Mint",           "option3": "D",  "price": 11995, "available": true,  "sku": "ASI-1011B974-001-100D", "featured_image": {"src": "https://cdn.shopify.com/s/files/1/novablast5/blackmint.jpg"}},
+      {"id": 12,"option1": "10.5", "option2": "Black/Mint",           "option3": "D",  "price": 11995, "available": true,  "sku": "ASI-1011B974-001-105D", "featured_image": {"src": "https://cdn.shopify.com/s/files/1/novablast5/blackmint.jpg"}},
+      {"id": 13,"option1": "11",   "option2": "Black/Mint",           "option3": "D",  "price": 11995, "available": false, "sku": "ASI-1011B974-001-110D", "featured_image": {"src": "https://cdn.shopify.com/s/files/1/novablast5/blackmint.jpg"}}
+    ]
+  }
+  </script>
+</body>
+</html>

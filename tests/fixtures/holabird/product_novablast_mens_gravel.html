@@ -1,0 +1,51 @@
+<!doctype html>
+<!--
+  Synthetic fixture: Holabird Sports product detail page (one colorway).
+  URL: https://www.holabirdsports.com/p/asics-novablast-5-mens-gravel-white
+
+  Holabird is Magento 2. One URL per colorway. The size picker is a real
+  `<li class="size-option">` list — each LI carries data-size, data-width,
+  and either `.in-stock` or `.out-of-stock` class. Price is product-level
+  (no per-size variation on Holabird) and sits in a `.price-wrapper`. The
+  manufacturer style number is in a spec table.
+-->
+<html>
+<head><title>ASICS Novablast 5 Men's Running Shoe (Gravel / White) | Holabird Sports</title></head>
+<body>
+  <h1 class="page-title"><span class="base">ASICS Novablast 5 Men's Running Shoe</span></h1>
+  <div class="product-color">Color: Gravel / White</div>
+  <div class="product-gender" data-gender="mens">Men's</div>
+  <img class="product-image-photo" src="https://cdn.holabirdsports.com/media/catalog/product/a/s/asi_1011b974_020_01.jpg"/>
+
+  <div class="price-wrapper">
+    <span class="price">$94.95</span>
+  </div>
+
+  <ul class="product-sizes" data-width="D">
+    <li class="size-option in-stock"  data-size="9.0"  data-width="D">9</li>
+    <li class="size-option in-stock"  data-size="9.5"  data-width="D">9.5</li>
+    <li class="size-option in-stock"  data-size="10.0" data-width="D">10</li>
+    <li class="size-option in-stock"  data-size="10.5" data-width="D">10.5</li>
+    <li class="size-option in-stock"  data-size="11.0" data-width="D">11</li>
+    <li class="size-option out-of-stock" data-size="11.5" data-width="D">11.5</li>
+    <li class="size-option in-stock"  data-size="12.0" data-width="D">12</li>
+  </ul>
+
+  <ul class="product-sizes" data-width="2E">
+    <li class="size-option in-stock"  data-size="10.0" data-width="2E">10</li>
+    <li class="size-option in-stock"  data-size="10.5" data-width="2E">10.5</li>
+    <li class="size-option out-of-stock" data-size="11.0" data-width="2E">11</li>
+  </ul>
+
+  <table class="product-spec-table">
+    <tr><th>Style Number</th><td>1011B974.020</td></tr>
+    <tr><th>Brand</th><td>ASICS</td></tr>
+  </table>
+
+  <nav class="colorway-switcher">
+    <a href="/p/asics-novablast-5-mens-gravel-white" class="active">Gravel / White</a>
+    <a href="/p/asics-novablast-5-mens-black-mint">Black / Mint</a>
+    <a href="/p/asics-novablast-5-mens-safety-yellow-clearance">Safety Yellow</a>
+  </nav>
+</body>
+</html>

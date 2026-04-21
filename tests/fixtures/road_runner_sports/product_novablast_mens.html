@@ -1,0 +1,81 @@
+<!doctype html>
+<!--
+  Synthetic fixture: Road Runner Sports product detail page.
+  URL: https://www.roadrunnersports.com/shoes/asics-novablast-5-mens/40000123
+
+  RRS ships all variant data inline as JSON via <script id="__NEXT_DATA__">.
+  The adapter parses that JSON instead of scraping the size/color picker HTML —
+  the rendered HTML is React and the JSON is the source of truth.
+
+  This fixture models: one product with 3 colorways (one fully in stock, one
+  with 10.5 2E out of stock, one entirely out of stock), mens D and 2E widths,
+  sizes 9–12 half-sizes.
+-->
+<html>
+<head><title>ASICS Novablast 5 Men's Running Shoe | Road Runner Sports</title></head>
+<body>
+  <h1 class="pdp-title">ASICS Novablast 5 Men's Running Shoe</h1>
+  <div class="pdp-brand">ASICS</div>
+  <img class="pdp-hero" src="https://images.roadrunnersports.com/products/asics_novablast_5_gravel_white_01.jpg"/>
+
+  <script id="__NEXT_DATA__" type="application/json">
+  {
+    "props": {
+      "pageProps": {
+        "product": {
+          "id": "40000123",
+          "brand": "ASICS",
+          "modelName": "Novablast 5",
+          "gender": "mens",
+          "mfrStyleNumber": "1011B974",
+          "defaultImage": "https://images.roadrunnersports.com/products/asics_novablast_5_gravel_white_01.jpg",
+          "colorways": [
+            {
+              "colorId": "GRAVEL_WHITE",
+              "colorName": "Gravel / White",
+              "mfrStyleCode": "1011B974.020",
+              "image": "https://images.roadrunnersports.com/products/asics_novablast_5_gravel_white_01.jpg",
+              "variants": [
+                {"sku": "RRS-ANB5-M-GW-90D", "size": 9.0,  "width": "D",  "price": 149.99, "inStock": true},
+                {"sku": "RRS-ANB5-M-GW-95D", "size": 9.5,  "width": "D",  "price": 149.99, "inStock": true},
+                {"sku": "RRS-ANB5-M-GW-100D","size": 10.0, "width": "D",  "price": 149.99, "inStock": true},
+                {"sku": "RRS-ANB5-M-GW-105D","size": 10.5, "width": "D",  "price": 149.99, "inStock": true},
+                {"sku": "RRS-ANB5-M-GW-110D","size": 11.0, "width": "D",  "price": 149.99, "inStock": true},
+                {"sku": "RRS-ANB5-M-GW-115D","size": 11.5, "width": "D",  "price": 149.99, "inStock": false},
+                {"sku": "RRS-ANB5-M-GW-120D","size": 12.0, "width": "D",  "price": 149.99, "inStock": true},
+                {"sku": "RRS-ANB5-M-GW-100E","size": 10.0, "width": "2E", "price": 149.99, "inStock": true},
+                {"sku": "RRS-ANB5-M-GW-105E","size": 10.5, "width": "2E", "price": 149.99, "inStock": false},
+                {"sku": "RRS-ANB5-M-GW-110E","size": 11.0, "width": "2E", "price": 149.99, "inStock": true}
+              ]
+            },
+            {
+              "colorId": "BLUE_TANGERINE",
+              "colorName": "Thunder Blue / Tangerine",
+              "mfrStyleCode": "1011B974.401",
+              "image": "https://images.roadrunnersports.com/products/asics_novablast_5_blue_tangerine_01.jpg",
+              "variants": [
+                {"sku": "RRS-ANB5-M-BT-90D", "size": 9.0,  "width": "D",  "price": 119.99, "inStock": true},
+                {"sku": "RRS-ANB5-M-BT-100D","size": 10.0, "width": "D",  "price": 119.99, "inStock": true},
+                {"sku": "RRS-ANB5-M-BT-105D","size": 10.5, "width": "D",  "price": 119.99, "inStock": true},
+                {"sku": "RRS-ANB5-M-BT-110D","size": 11.0, "width": "D",  "price": 119.99, "inStock": true}
+              ]
+            },
+            {
+              "colorId": "BLACK_MINT",
+              "colorName": "Black / Mint Tint",
+              "mfrStyleCode": "1011B974.001",
+              "image": "https://images.roadrunnersports.com/products/asics_novablast_5_black_mint_01.jpg",
+              "variants": [
+                {"sku": "RRS-ANB5-M-BM-90D", "size": 9.0,  "width": "D", "price": 149.99, "inStock": false},
+                {"sku": "RRS-ANB5-M-BM-100D","size": 10.0, "width": "D", "price": 149.99, "inStock": false},
+                {"sku": "RRS-ANB5-M-BM-105D","size": 10.5, "width": "D", "price": 149.99, "inStock": false}
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+  </script>
+</body>
+</html>
