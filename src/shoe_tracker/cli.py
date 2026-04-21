@@ -1,6 +1,7 @@
 """Command-line entry point. Stubs for later chunks live here too."""
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from pathlib import Path
 
 import click
@@ -9,6 +10,7 @@ from . import config as config_mod
 from .adapters import ADAPTERS, VariantPrice, get_adapter
 from .db import (
     Database,
+    PriceSnapshotRepo,
     RetailerMappingRepo,
     ShoeRepo,
     UserRepo,
@@ -16,7 +18,18 @@ from .db import (
     init_db as run_init_db,
     DEFAULT_DB_PATH,
 )
-from .models import CanonicalShoe, User, WatchlistEntry, RotationConfig
+from .mapping import MappingOutcome, MappingTier, pick_best
+from .models import (
+    CanonicalShoe,
+    PriceSnapshot,
+    RetailerMapping,
+    RotationConfig,
+    ShoeVariant,
+    User,
+    WatchlistEntry,
+)
+
+MAPPING_REVIEW_PATH = Path("docs/mapping_review.md")
 
 
 @click.group(invoke_without_command=False)
@@ -105,17 +118,98 @@ def rotation_sync(ctx: click.Context) -> None:
 
 
 @rotation.command("map")
-@click.option("--retailer")
-@click.option("--all", "all_retailers", is_flag=True)
-def rotation_map(retailer: str | None, all_retailers: bool) -> None:
-    """Resolve per-retailer product URLs. (implemented in chunk 3)"""
-    raise click.ClickException("not implemented yet — see chunk 3 in plan.md")
+@click.option("--retailer", type=click.Choice(sorted(ADAPTERS)))
+@click.option("--all", "all_retailers", is_flag=True,
+              help="Map every registered retailer.")
+@click.option("--review-path", type=click.Path(path_type=Path),
+              default=MAPPING_REVIEW_PATH,
+              help="Where to write the mapping-review markdown for flagged entries.")
+@click.pass_context
+def rotation_map(
+    ctx: click.Context,
+    retailer: str | None,
+    all_retailers: bool,
+    review_path: Path,
+) -> None:
+    """Resolve per-retailer product URLs with confidence scoring.
+
+    Writes to `retailer_mappings` and snapshots variants from every mapped
+    product page. Low-confidence mappings (0.6–0.9) are recorded and also
+    surfaced in `docs/mapping_review.md` for manual eyeballing.
+    """
+    if not retailer and not all_retailers:
+        raise click.UsageError("pass --retailer NAME or --all")
+
+    db_path: Path = ctx.obj["db_path"]
+    if not db_path.exists():
+        raise click.ClickException(
+            f"Database not found at {db_path}. Run 'shoe-tracker init-db' first."
+        )
+
+    retailers = sorted(ADAPTERS) if all_retailers else [retailer]  # type: ignore[list-item]
+    flagged: list[tuple[CanonicalShoe, str, MappingOutcome]] = []
+
+    with Database(db_path) as db:
+        shoes_by_id = {s.id: s for s in ShoeRepo(db).list_canonical()}
+        entries = WatchlistRepo(db).list_for_user()
+        if not entries:
+            click.echo("(rotation is empty — nothing to map)")
+            return
+
+        for r_name in retailers:
+            adapter = get_adapter(r_name)
+            for entry in entries:
+                shoe = shoes_by_id.get(entry.canonical_shoe_id)
+                if shoe is None:
+                    continue
+                outcome = _map_one(adapter, shoe)
+                _echo_outcome(shoe, r_name, outcome)
+                if outcome.best is None:
+                    continue
+                _persist_outcome(db, shoe, r_name, outcome)
+                if outcome.tier is MappingTier.FLAGGED:
+                    flagged.append((shoe, r_name, outcome))
+
+    _write_mapping_review(review_path, flagged)
 
 
 @rotation.command("status")
-def rotation_status() -> None:
-    """Show current minimum price per watchlist entry. (implemented in chunk 3)"""
-    raise click.ClickException("not implemented yet — see chunk 3 in plan.md")
+@click.pass_context
+def rotation_status(ctx: click.Context) -> None:
+    """Show current minimum price per watchlist entry."""
+    db_path: Path = ctx.obj["db_path"]
+    if not db_path.exists():
+        raise click.ClickException(
+            f"Database not found at {db_path}. Run 'shoe-tracker init-db' first."
+        )
+    with Database(db_path) as db:
+        shoes_by_id = {s.id: s for s in ShoeRepo(db).list_canonical()}
+        entries = WatchlistRepo(db).list_for_user()
+        if not entries:
+            click.echo("(rotation is empty)")
+            return
+        mapping_repo = RetailerMappingRepo(db)
+        for e in entries:
+            shoe = shoes_by_id.get(e.canonical_shoe_id)
+            label = shoe.display_name if shoe else f"canonical#{e.canonical_shoe_id}"
+            gender = _gender_letter(shoe.gender if shoe else "mens")
+            header = (
+                f"{label} ({gender} {_fmt_size(e.size)} {e.width}, "
+                f"{_policy_label(e.colorway_policy, e.colorway_list)})  "
+                f"threshold ${_fmt_money(e.threshold_usd)}"
+            )
+            mappings = mapping_repo.list_for_shoe(e.canonical_shoe_id)
+            if not mappings:
+                click.echo(f"{header}  unmapped")
+                continue
+            winner = _current_min(db, e, mappings)
+            if winner is None:
+                click.echo(f"{header}  no price data yet")
+                continue
+            price, retailer, colorway = winner
+            click.echo(
+                f"{header}  current min ${_fmt_money(price)} {colorway} @ {retailer}"
+            )
 
 
 @rotation.command("set-threshold")
@@ -249,6 +343,148 @@ def _fmt_size(size: float) -> str:
 
 def _fmt_money(v: float) -> str:
     return f"{v:g}" if v == int(v) else f"{v:.2f}"
+
+
+def _map_one(adapter, shoe: CanonicalShoe) -> MappingOutcome:
+    """Search the retailer for one canonical shoe and score the candidates."""
+    try:
+        results = adapter.search(shoe)
+    except Exception as exc:  # pragma: no cover — defensive; live adapter errors
+        click.echo(f"  ! {adapter.name} search failed: {exc}", err=True)
+        return MappingOutcome(best=None, confidence=0.0, tier=MappingTier.REJECTED)
+    return pick_best(shoe, results)
+
+
+def _echo_outcome(shoe: CanonicalShoe, retailer: str, outcome: MappingOutcome) -> None:
+    if outcome.best is None:
+        click.echo(f"{shoe.display_name} → {retailer}: unmapped (no candidates passed)")
+        return
+    label = {
+        MappingTier.AUTO: "mapped",
+        MappingTier.FLAGGED: "mapped (review)",
+    }.get(outcome.tier, "unmapped")
+    click.echo(
+        f"{shoe.display_name} → {retailer}: {label} ({outcome.confidence:.2f}) "
+        f"→ {outcome.best.product_url}"
+    )
+
+
+def _persist_outcome(
+    db: Database, shoe: CanonicalShoe, retailer: str, outcome: MappingOutcome,
+) -> None:
+    assert shoe.id is not None
+    best = outcome.best
+    assert best is not None
+    RetailerMappingRepo(db).upsert(RetailerMapping(
+        canonical_shoe_id=shoe.id,
+        retailer=retailer,
+        product_url=best.product_url,
+        product_id=best.product_code,
+        confidence=outcome.confidence,
+    ))
+    # Snapshot the variants from the mapped page so `rotation status` has data
+    # to render. Failure here shouldn't break the whole map run.
+    try:
+        adapter = get_adapter(retailer)
+        variants = adapter.fetch_variants(best.product_url)
+    except Exception as exc:
+        click.echo(f"  ! variant fetch failed: {exc}", err=True)
+        return
+    _store_variants(db, shoe, retailer, variants)
+
+
+def _store_variants(
+    db: Database, shoe: CanonicalShoe, retailer: str, variants,
+) -> None:
+    shoe_repo = ShoeRepo(db)
+    snap_repo = PriceSnapshotRepo(db)
+    now = datetime.now(timezone.utc)
+    for v in variants:
+        variant = shoe_repo.upsert_variant(ShoeVariant(
+            canonical_shoe_id=shoe.id,  # type: ignore[arg-type]
+            size=v.size,
+            width=v.width,
+            colorway_name=v.colorway_name,
+            colorway_code=v.colorway_code,
+            mfr_style_code=v.mfr_style_code,
+            image_url=v.image_url,
+        ))
+        snap_repo.insert(PriceSnapshot(
+            shoe_variant_id=variant.id,  # type: ignore[arg-type]
+            retailer=retailer,
+            price_usd=v.price_usd,
+            in_stock=v.in_stock,
+            scraped_at=now,
+            source_url=v.product_url,
+        ))
+
+
+def _current_min(
+    db: Database, entry: WatchlistEntry, mappings: list[RetailerMapping],
+) -> tuple[float, str, str] | None:
+    """Return (price, retailer, colorway_name) for the cheapest in-stock variant
+    matching the watchlist entry's size + width across all mapped retailers.
+
+    Colorway policy is *not* applied here — that's the evaluator's job in
+    chunk 5. Status just shows the cheapest matching variant so you can see
+    what's out there.
+    """
+    conn = db._conn
+    row = conn.execute(
+        """
+        SELECT ps.price_usd, ps.retailer, v.colorway_name
+        FROM price_snapshots ps
+        JOIN shoe_variants v ON v.id = ps.shoe_variant_id
+        JOIN (
+            SELECT shoe_variant_id, retailer, MAX(scraped_at) AS last_at
+            FROM price_snapshots
+            GROUP BY shoe_variant_id, retailer
+        ) latest
+          ON latest.shoe_variant_id = ps.shoe_variant_id
+         AND latest.retailer = ps.retailer
+         AND latest.last_at = ps.scraped_at
+        WHERE v.canonical_shoe_id = ?
+          AND v.size = ?
+          AND v.width = ?
+          AND ps.in_stock = 1
+          AND ps.retailer IN ({placeholders})
+        ORDER BY ps.price_usd ASC
+        LIMIT 1
+        """.format(placeholders=",".join("?" * len(mappings))),
+        (entry.canonical_shoe_id, entry.size, entry.width, *[m.retailer for m in mappings]),
+    ).fetchone()
+    if not row:
+        return None
+    return float(row["price_usd"]), row["retailer"], row["colorway_name"]
+
+
+def _write_mapping_review(
+    path: Path,
+    flagged: list[tuple[CanonicalShoe, str, MappingOutcome]],
+) -> None:
+    """Write `docs/mapping_review.md` so humans can audit the 0.6–0.9 band.
+
+    In v2 this becomes a DB-backed admin UI (see plan.md). For v1 a plain
+    markdown file checked into the repo is enough.
+    """
+    if not flagged:
+        # No flagged entries: leave an empty file so the artifact still exists
+        # (makes the "what needs review?" question trivially answerable).
+        content = "# Mapping review\n\nNo mappings currently need review.\n"
+    else:
+        lines = ["# Mapping review", "", "Confidence 0.6–0.9 — eyeball these.", ""]
+        for shoe, retailer, outcome in flagged:
+            assert outcome.best is not None
+            lines.append(
+                f"- **{shoe.display_name}** → {retailer} "
+                f"({outcome.confidence:.2f}) — {outcome.best.title}"
+            )
+            lines.append(f"  - {outcome.best.product_url}")
+            for note in outcome.notes:
+                lines.append(f"  - {note}")
+        content = "\n".join(lines) + "\n"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content)
 
 
 def _policy_label(policy: str, colorways: list[str]) -> str:
