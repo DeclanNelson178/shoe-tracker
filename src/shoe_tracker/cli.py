@@ -10,6 +10,7 @@ from . import config as config_mod
 from .adapters import ADAPTERS, VariantPrice, get_adapter
 from .db import (
     Database,
+    NotificationRepo,
     PriceSnapshotRepo,
     RetailerMappingRepo,
     ShoeRepo,
@@ -18,9 +19,11 @@ from .db import (
     init_db as run_init_db,
     DEFAULT_DB_PATH,
 )
+from .evaluator import TriggeredAlert, evaluate
 from .mapping import MappingOutcome, MappingTier, pick_best
 from .models import (
     CanonicalShoe,
+    NotificationRecord,
     PriceSnapshot,
     RetailerMapping,
     RotationConfig,
@@ -28,6 +31,7 @@ from .models import (
     User,
     WatchlistEntry,
 )
+from .notifiers import Notifier, email_notifier_from_env
 
 MAPPING_REVIEW_PATH = Path("docs/mapping_review.md")
 
@@ -215,15 +219,105 @@ def rotation_status(ctx: click.Context) -> None:
 @rotation.command("set-threshold")
 @click.argument("shoe")
 @click.argument("threshold", type=float)
-def rotation_set_threshold(shoe: str, threshold: float) -> None:
-    """Update threshold on a watchlist entry. (implemented in chunk 5)"""
-    raise click.ClickException("not implemented yet — see chunk 5 in plan.md")
+@click.pass_context
+def rotation_set_threshold(ctx: click.Context, shoe: str, threshold: float) -> None:
+    """Update the USD threshold for watchlist entries matching SHOE.
+
+    SHOE is matched case-insensitively as a substring of the canonical shoe's
+    display name — "Novablast 5" is enough to hit "ASICS Novablast 5".
+    """
+    if threshold <= 0:
+        raise click.ClickException("threshold must be positive")
+    db_path: Path = ctx.obj["db_path"]
+    if not db_path.exists():
+        raise click.ClickException(
+            f"Database not found at {db_path}. Run 'shoe-tracker init-db' first."
+        )
+    with Database(db_path) as db:
+        shoe_repo = ShoeRepo(db)
+        watch_repo = WatchlistRepo(db)
+        needle = shoe.lower()
+        matches = [s for s in shoe_repo.list_canonical() if needle in s.display_name.lower()]
+        if not matches:
+            raise click.ClickException(f"no canonical shoe matches {shoe!r}")
+        if len(matches) > 1:
+            names = ", ".join(s.display_name for s in matches)
+            raise click.ClickException(f"ambiguous shoe {shoe!r}: {names}")
+        target = matches[0]
+        entries = [
+            e for e in watch_repo.list_for_user(only_active=False)
+            if e.canonical_shoe_id == target.id
+        ]
+        if not entries:
+            raise click.ClickException(
+                f"no watchlist entry for {target.display_name}"
+            )
+        for entry in entries:
+            watch_repo.upsert(WatchlistEntry(
+                user_id=entry.user_id,
+                canonical_shoe_id=entry.canonical_shoe_id,
+                size=entry.size,
+                width=entry.width,
+                colorway_policy=entry.colorway_policy,
+                colorway_list=list(entry.colorway_list),
+                threshold_usd=threshold,
+                active=entry.active,
+            ))
+        click.echo(
+            f"{target.display_name}: threshold set to ${_fmt_money(threshold)} "
+            f"(updated {len(entries)} entr{'y' if len(entries) == 1 else 'ies'})"
+        )
 
 
 @rotation.command("evaluate")
-def rotation_evaluate() -> None:
-    """Run the evaluator + notifier. (implemented in chunk 5)"""
-    raise click.ClickException("not implemented yet — see chunk 5 in plan.md")
+@click.option("--dry-run", is_flag=True,
+              help="Print alerts without building a notifier or writing notifications_sent.")
+@click.pass_context
+def rotation_evaluate(ctx: click.Context, dry_run: bool) -> None:
+    """Run the evaluator, send an email per triggered alert, record dedup rows."""
+    db_path: Path = ctx.obj["db_path"]
+    if not db_path.exists():
+        raise click.ClickException(
+            f"Database not found at {db_path}. Run 'shoe-tracker init-db' first."
+        )
+    notifier: Notifier | None = None if dry_run else email_notifier_from_env()
+    with Database(db_path) as db:
+        alerts = evaluate(db)
+        if not alerts:
+            click.echo("No alerts.")
+            return
+        user = UserRepo(db).get("me")
+        assert user is not None, "init-db should have synced the 'me' user"
+        for alert in alerts:
+            _echo_alert(alert)
+            if dry_run:
+                continue
+            if notifier is None:
+                click.echo("  (SMTP not configured — skipping send)")
+                continue
+            if not notifier.notify(user, alert):
+                click.echo(f"  ! {notifier.channel} send failed", err=True)
+                continue
+            NotificationRepo(db).insert(NotificationRecord(
+                user_id=user.id,
+                shoe_variant_id=alert.variant.id,  # type: ignore[arg-type]
+                retailer=alert.retailer,
+                triggering_price=alert.price_usd,
+                sent_at=datetime.now(timezone.utc),
+                channel=notifier.channel,  # type: ignore[arg-type]
+            ))
+            click.echo(f"  email sent to {user.email}")
+
+
+def _echo_alert(alert: TriggeredAlert) -> None:
+    click.echo(
+        f"{alert.shoe.display_name} "
+        f"(size {_fmt_size(alert.variant.size)} {alert.variant.width}, "
+        f"{alert.variant.colorway_name}) "
+        f"${alert.price_usd:.2f} @ {alert.retailer} "
+        f"(threshold ${_fmt_money(alert.threshold_usd)}, "
+        f"save ${alert.delta_usd:.2f}) — {alert.source_url}"
+    )
 
 
 @main.command()
