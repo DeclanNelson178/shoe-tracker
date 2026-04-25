@@ -1,7 +1,10 @@
 """Polite HTTP client used by every retailer adapter.
 
-Realistic User-Agent, 1–2s jitter between requests, simple retry on transient
-errors. Wrapping httpx so adapters can be handed a fake client in tests.
+Realistic User-Agent, 1–2s jitter between requests, exponential backoff on
+the retailer-side rate-limit signals (429, 403). After `max_retries` the
+client raises `RateLimitedError`; the orchestration layer (`rotation map`)
+catches that, marks the retailer as skipped for this run, and moves on
+without crashing the whole pipeline.
 """
 from __future__ import annotations
 
@@ -16,13 +19,21 @@ DEFAULT_USER_AGENT = (
     "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 )
 
+# Status codes worth backing off on. 429 is the polite signal; 403 is what
+# Cloudflare-fronted retailers tend to return when they want us to slow down.
+DEFAULT_RETRY_STATUS: tuple[int, ...] = (429, 403)
+
+
+class RateLimitedError(Exception):
+    """Raised when a retailer keeps rate-limiting us past `max_retries`."""
+
 
 class HttpClient(Protocol):
     def get(self, url: str) -> str: ...
 
 
 class PoliteClient:
-    """httpx-backed client that sleeps between requests."""
+    """httpx-backed client that sleeps between requests and retries on 429/403."""
 
     def __init__(
         self,
@@ -34,6 +45,9 @@ class PoliteClient:
         client: httpx.Client | None = None,
         sleeper=time.sleep,
         rng: random.Random | None = None,
+        max_retries: int = 3,
+        backoff_base_s: float = 2.0,
+        retry_status: tuple[int, ...] = DEFAULT_RETRY_STATUS,
     ):
         self.min_delay_s = min_delay_s
         self.max_delay_s = max_delay_s
@@ -46,13 +60,25 @@ class PoliteClient:
             timeout=timeout_s,
             follow_redirects=True,
         )
+        self.max_retries = max_retries
+        self.backoff_base_s = backoff_base_s
+        self.retry_status = tuple(retry_status)
 
     def get(self, url: str) -> str:
-        self._wait_if_needed()
-        resp = self._client.get(url)
-        resp.raise_for_status()
-        self._last_request_at = time.monotonic()
-        return resp.text
+        for attempt in range(self.max_retries + 1):
+            self._wait_if_needed()
+            resp = self._client.get(url)
+            self._last_request_at = time.monotonic()
+            if resp.status_code in self.retry_status:
+                if attempt < self.max_retries:
+                    self._sleep(self.backoff_base_s * (2 ** attempt))
+                    continue
+                raise RateLimitedError(
+                    f"{url} returned HTTP {resp.status_code} after {attempt + 1} attempts"
+                )
+            resp.raise_for_status()
+            return resp.text
+        raise RuntimeError("unreachable")  # pragma: no cover
 
     def close(self) -> None:
         if self._owns_client:

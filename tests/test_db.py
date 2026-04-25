@@ -167,6 +167,56 @@ def test_notification_last_sent_at(db):
     assert repo.last_sent_at(user_id="me", shoe_variant_id=v.id, retailer="other") is None
 
 
+def test_price_snapshot_prune_older_than_deletes_old_rows(db):
+    shoe = ShoeRepo(db).upsert_canonical(
+        CanonicalShoe(brand="ASICS", model="Novablast", version="5", gender="mens")
+    )
+    variant = ShoeRepo(db).upsert_variant(ShoeVariant(
+        canonical_shoe_id=shoe.id, size=10.5, width="D", colorway_name="Black/Mint",
+    ))
+    repo = PriceSnapshotRepo(db)
+    now = datetime(2026, 4, 25, 12, 0, tzinfo=timezone.utc)
+    for days_ago in (1, 30, 89, 91, 200):
+        repo.insert(PriceSnapshot(
+            shoe_variant_id=variant.id, retailer="running_warehouse",
+            price_usd=89.0, in_stock=True,
+            scraped_at=now - timedelta(days=days_ago),
+            source_url="https://rw/x",
+        ))
+    cutoff = now - timedelta(days=90)
+
+    deleted = repo.prune_older_than(cutoff)
+
+    assert deleted == 2  # the 91-days-ago and 200-days-ago rows
+    rows = db._conn.execute(
+        "SELECT scraped_at FROM price_snapshots ORDER BY scraped_at"
+    ).fetchall()
+    remaining_ages = sorted(
+        round((now - datetime.fromisoformat(r["scraped_at"])).days)
+        for r in rows
+    )
+    assert remaining_ages == [1, 30, 89]
+
+
+def test_price_snapshot_prune_returns_zero_when_nothing_to_delete(db):
+    shoe = ShoeRepo(db).upsert_canonical(
+        CanonicalShoe(brand="ASICS", model="Novablast", version="5", gender="mens")
+    )
+    variant = ShoeRepo(db).upsert_variant(ShoeVariant(
+        canonical_shoe_id=shoe.id, size=10.5, width="D", colorway_name="Black/Mint",
+    ))
+    PriceSnapshotRepo(db).insert(PriceSnapshot(
+        shoe_variant_id=variant.id, retailer="running_warehouse",
+        price_usd=89.0, in_stock=True,
+        scraped_at=datetime.now(timezone.utc),
+        source_url="https://rw/x",
+    ))
+    deleted = PriceSnapshotRepo(db).prune_older_than(
+        datetime(1990, 1, 1, tzinfo=timezone.utc)
+    )
+    assert deleted == 0
+
+
 def test_notification_list_recent_for_user_filters_by_window_and_user(db):
     UserRepo(db).upsert(User(id="me", email="me@example.com"))
     UserRepo(db).upsert(User(id="other", email="other@example.com"))

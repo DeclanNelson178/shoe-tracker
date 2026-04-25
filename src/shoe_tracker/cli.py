@@ -1,13 +1,14 @@
 """Command-line entry point. Stubs for later chunks live here too."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import click
 
 from . import config as config_mod
 from .adapters import ADAPTERS, VariantPrice, get_adapter
+from .adapters.http import RateLimitedError
 from .db import (
     DEFAULT_DB_PATH,
     Database,
@@ -164,15 +165,34 @@ def rotation_map(
 
         for r_name in retailers:
             adapter = get_adapter(r_name)
+            rate_limited = False
             for entry in entries:
+                if rate_limited:
+                    continue
                 shoe = shoes_by_id.get(entry.canonical_shoe_id)
                 if shoe is None:
                     continue
-                outcome = _map_one(adapter, shoe)
+                try:
+                    outcome = _map_one(adapter, shoe)
+                except RateLimitedError as exc:
+                    click.echo(
+                        f"  ! {r_name} rate-limited: {exc} — skipping for this run",
+                        err=True,
+                    )
+                    rate_limited = True
+                    continue
                 _echo_outcome(shoe, r_name, outcome)
                 if outcome.best is None:
                     continue
-                _persist_outcome(db, shoe, r_name, outcome)
+                try:
+                    _persist_outcome(db, shoe, r_name, outcome)
+                except RateLimitedError as exc:
+                    click.echo(
+                        f"  ! {r_name} rate-limited during fetch: {exc} — skipping for this run",
+                        err=True,
+                    )
+                    rate_limited = True
+                    continue
                 if outcome.tier is MappingTier.FLAGGED:
                     flagged.append((shoe, r_name, outcome))
 
@@ -269,6 +289,29 @@ def rotation_set_threshold(ctx: click.Context, shoe: str, threshold: float) -> N
             f"{target.display_name}: threshold set to ${_fmt_money(threshold)} "
             f"(updated {len(entries)} entr{'y' if len(entries) == 1 else 'ies'})"
         )
+
+
+@rotation.command("prune")
+@click.option("--days", type=int, default=90, show_default=True,
+              help="Delete price snapshots older than this many days.")
+@click.pass_context
+def rotation_prune(ctx: click.Context, days: int) -> None:
+    """Drop price_snapshots scraped more than --days ago.
+
+    Keeps the committed sqlite from growing unboundedly. Run this after
+    `rotation evaluate` so the daily commit reflects a trimmed history.
+    """
+    if days <= 0:
+        raise click.ClickException("--days must be positive")
+    db_path: Path = ctx.obj["db_path"]
+    if not db_path.exists():
+        raise click.ClickException(
+            f"Database not found at {db_path}. Run 'shoe-tracker init-db' first."
+        )
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    with Database(db_path) as db:
+        deleted = PriceSnapshotRepo(db).prune_older_than(cutoff)
+    click.echo(f"Pruned {deleted} price snapshots older than {days} days.")
 
 
 @rotation.command("evaluate")
@@ -442,9 +485,16 @@ def _fmt_money(v: float) -> str:
 
 
 def _map_one(adapter, shoe: CanonicalShoe) -> MappingOutcome:
-    """Search the retailer for one canonical shoe and score the candidates."""
+    """Search the retailer for one canonical shoe and score the candidates.
+
+    `RateLimitedError` propagates out so the caller can short-circuit the
+    whole retailer for this run. Other exceptions are logged and treated as
+    a rejected mapping for this single shoe.
+    """
     try:
         results = adapter.search(shoe)
+    except RateLimitedError:
+        raise
     except Exception as exc:  # pragma: no cover — defensive; live adapter errors
         click.echo(f"  ! {adapter.name} search failed: {exc}", err=True)
         return MappingOutcome(best=None, confidence=0.0, tier=MappingTier.REJECTED)
@@ -479,10 +529,13 @@ def _persist_outcome(
         confidence=outcome.confidence,
     ))
     # Snapshot the variants from the mapped page so `rotation status` has data
-    # to render. Failure here shouldn't break the whole map run.
+    # to render. Rate-limit errors propagate so the caller can skip the whole
+    # retailer; other failures are logged and don't break the map run.
     try:
         adapter = get_adapter(retailer)
         variants = adapter.fetch_variants(best.product_url)
+    except RateLimitedError:
+        raise
     except Exception as exc:
         click.echo(f"  ! variant fetch failed: {exc}", err=True)
         return

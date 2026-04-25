@@ -44,6 +44,9 @@ jobs:
       - name: Evaluate thresholds and notify
         run: python -m shoe_tracker rotation evaluate
 
+      - name: Prune snapshots older than 90 days
+        run: python -m shoe_tracker rotation prune
+
       - name: Render dashboard
         run: python scripts/render_dashboard.py
 

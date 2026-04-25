@@ -162,6 +162,35 @@ def test_rotation_map_all_invokes_every_adapter(
         assert retailer in result.output, f"missing {retailer} in:\n{result.output}"
 
 
+def test_rotation_map_skips_rate_limited_retailer_but_continues_others(
+    tmp_path, fake_config, stub_all_adapters, monkeypatch,
+):
+    """When one retailer keeps rate-limiting us, --all skips it and finishes."""
+    from shoe_tracker.adapters.http import RateLimitedError
+
+    class _RateLimitedRRS(RoadRunnerSportsAdapter):
+        def search(self, canonical):
+            raise RateLimitedError("simulated 429 from RRS")
+
+    monkeypatch.setitem(ADAPTERS, "road_runner_sports", _RateLimitedRRS)
+
+    db_path = tmp_path / "t.db"
+    review = tmp_path / "review.md"
+    runner = CliRunner()
+    _run(runner, "init-db", db_path=db_path, config_path=fake_config)
+    result = _run(
+        runner, "rotation", "map", "--all", "--review-path", str(review),
+        db_path=db_path, config_path=fake_config,
+    )
+    assert result.exit_code == 0, result.output
+    # Rate-limit message surfaces, naming the retailer.
+    assert "road_runner_sports" in result.output
+    assert "rate-limited" in result.output.lower()
+    # Other retailers still made it through.
+    for retailer in ("running_warehouse", "holabird", "jackrabbit"):
+        assert f"→ {retailer}: mapped" in result.output, result.output
+
+
 def test_rotation_map_requires_retailer_or_all(tmp_path, fake_config, stub_rw_adapter):
     db_path = tmp_path / "t.db"
     runner = CliRunner()
