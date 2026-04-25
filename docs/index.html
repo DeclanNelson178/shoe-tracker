@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>shoe-tracker</title>
+  <style>
+    :root {
+      --bg: #fafafa;
+      --fg: #1f1f1f;
+      --muted: #666;
+      --card: #ffffff;
+      --border: #e5e5e5;
+      --green: #2e7d32;
+      --green-bg: #e8f5e9;
+      --yellow: #b8860b;
+      --yellow-bg: #fff8e1;
+      --red: #c62828;
+      --red-bg: #ffebee;
+      --gray: #555;
+      --gray-bg: #eeeeee;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      margin: 0;
+      padding: 1rem;
+      max-width: 56rem;
+      margin-inline: auto;
+      line-height: 1.45;
+    }
+    h1 { margin: 0 0 0.5rem; font-size: 1.5rem; }
+    .meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.25rem; }
+    .stale-banner {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid var(--red);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+    .empty {
+      color: var(--muted);
+      padding: 1rem;
+      text-align: center;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+    }
+    .entry {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .entry-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+    .shoe-name { font-size: 1.1rem; font-weight: 600; margin: 0; }
+    .spec { color: var(--muted); font-size: 0.9rem; }
+    .price-pill {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.4rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      white-space: nowrap;
+    }
+    .price-pill .delta { font-weight: 400; font-size: 0.85em; opacity: 0.85; }
+    .state-below { background: var(--green-bg); color: var(--green); }
+    .state-near  { background: var(--yellow-bg); color: var(--yellow); }
+    .state-above { background: var(--red-bg); color: var(--red); }
+    .state-no_data { background: var(--gray-bg); color: var(--gray); }
+    .headline {
+      display: flex;
+      gap: 0.75rem;
+      margin: 0.75rem 0 0.5rem;
+      align-items: center;
+    }
+    .headline img {
+      width: 64px; height: 64px; object-fit: cover;
+      border-radius: 6px; border: 1px solid var(--border);
+    }
+    .headline .info { font-size: 0.9rem; color: var(--muted); }
+    .headline .info a { color: inherit; }
+    details { margin-top: 0.5rem; }
+    summary {
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: var(--muted);
+      user-select: none;
+    }
+    table.rows {
+      width: 100%;
+      margin-top: 0.5rem;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    table.rows th, table.rows td {
+      text-align: left;
+      padding: 0.4rem 0.5rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    table.rows th { color: var(--muted); font-weight: 500; }
+    table.rows .num { text-align: right; font-variant-numeric: tabular-nums; }
+    table.rows .oos { color: var(--muted); }
+    table.rows .skip { color: var(--muted); font-style: italic; }
+    table.rows img.thumb {
+      width: 36px; height: 36px; object-fit: cover;
+      border-radius: 4px; border: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .stamp { color: var(--muted); font-size: 0.85rem; margin-top: 0.5rem; }
+    h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem; }
+    table.history {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    table.history th, table.history td {
+      padding: 0.5rem 0.6rem;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    table.history th { color: var(--muted); font-weight: 500; }
+    table.history tr:last-child td { border-bottom: 0; }
+    @media (max-width: 480px) {
+      body { padding: 0.75rem; }
+      .entry-head { flex-direction: column; align-items: flex-start; }
+      table.rows th.col-img, table.rows td.col-img { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <h1>shoe-tracker</h1>
+  <p class="meta">
+    Generated 2026-04-25 16:10 UTC
+· last scrape 2026-04-25 16:10 UTC  </p>
+
+
+
+    <article class="entry">
+      <div class="entry-head">
+        <div>
+          <p class="shoe-name">ASICS Novablast 5</p>
+          <p class="spec">
+            M 10.5 D ·
+            any colorway ·
+            threshold $100.00
+          </p>
+        </div>
+        <span class="price-pill state-above">
+            $149.95
+            <span class="delta">
++$49.95 over            </span>
+        </span>
+      </div>
+
+        <div class="headline">
+            <a href="https://www.runningwarehouse.com/ASICS_Novablast_5/descpage-ANB5M4.html" target="_blank" rel="noopener">
+              <img src="https://img.runningwarehouse.com/watermark/rs.php?path=ANB5M4-1.jpg&amp;nw=455" alt="Arctic Blue/Aegean Blue">
+            </a>
+          <div class="info">
+            Arctic Blue/Aegean Blue @ running_warehouse
+            · <a href="https://www.runningwarehouse.com/ASICS_Novablast_5/descpage-ANB5M4.html" target="_blank" rel="noopener">view</a>
+          </div>
+        </div>
+
+      <details>
+        <summary>1 variant across retailers</summary>
+          <table class="rows">
+            <thead>
+              <tr>
+                <th class="col-img"></th>
+                <th>Retailer</th>
+                <th>Colorway</th>
+                <th class="num">Price</th>
+                <th>Stock</th>
+                <th>Scraped</th>
+              </tr>
+            </thead>
+            <tbody>
+                <tr class="">
+                  <td class="col-img">
+                      <a href="https://www.runningwarehouse.com/ASICS_Novablast_5/descpage-ANB5M4.html" target="_blank" rel="noopener">
+                        <img class="thumb" src="https://img.runningwarehouse.com/watermark/rs.php?path=ANB5M4-1.jpg&amp;nw=455" alt="">
+                      </a>
+                  </td>
+                  <td>running_warehouse</td>
+                  <td>
+                    <a href="https://www.runningwarehouse.com/ASICS_Novablast_5/descpage-ANB5M4.html" target="_blank" rel="noopener">Arctic Blue/Aegean Blue</a>
+                  </td>
+                  <td class="num">$149.95</td>
+                  <td>in stock</td>
+                  <td>2026-04-25 16:10 UTC</td>
+                </tr>
+            </tbody>
+          </table>
+      </details>
+    </article>
+
+  <h2>Recent alerts</h2>
+    <p class="empty">No alerts in the last 30 days.</p>
+</body>
+</html>

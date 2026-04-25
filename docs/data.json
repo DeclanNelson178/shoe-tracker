@@ -1,0 +1,38 @@
+{
+  "alerts": [],
+  "entries": [
+    {
+      "gender_letter": "M",
+      "headline": {
+        "colorway_name": "Arctic Blue/Aegean Blue",
+        "image_url": "https://img.runningwarehouse.com/watermark/rs.php?path=ANB5M4-1.jpg&nw=455",
+        "price_usd": 149.95,
+        "retailer": "running_warehouse",
+        "source_url": "https://www.runningwarehouse.com/ASICS_Novablast_5/descpage-ANB5M4.html"
+      },
+      "last_scraped_at": "2026-04-25T16:10:48.542118+00:00",
+      "policy_label": "any colorway",
+      "rows": [
+        {
+          "colorway_code": "ANB5M4",
+          "colorway_name": "Arctic Blue/Aegean Blue",
+          "image_url": "https://img.runningwarehouse.com/watermark/rs.php?path=ANB5M4-1.jpg&nw=455",
+          "in_stock": true,
+          "matches_policy": true,
+          "price_usd": 149.95,
+          "retailer": "running_warehouse",
+          "scraped_at": "2026-04-25T16:10:48.542118+00:00",
+          "source_url": "https://www.runningwarehouse.com/ASICS_Novablast_5/descpage-ANB5M4.html"
+        }
+      ],
+      "shoe_display": "ASICS Novablast 5",
+      "size": 10.5,
+      "state": "above",
+      "threshold_usd": 100.0,
+      "width": "D"
+    }
+  ],
+  "generated_at": "2026-04-25T16:10:49.254973+00:00",
+  "is_stale": false,
+  "last_scrape_at": "2026-04-25T16:10:48.542118+00:00"
+}
