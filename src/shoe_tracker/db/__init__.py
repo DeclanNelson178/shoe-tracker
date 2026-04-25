@@ -314,6 +314,72 @@ class PriceSnapshotRepo:
             return None
         return _row_to_snapshot(row)
 
+    def latest_variants_with_prices(
+        self, *, canonical_shoe_id: int, size: float, width: str,
+        retailers: list[str],
+    ) -> list[tuple[ShoeVariant, PriceSnapshot]]:
+        """Latest snapshot per (variant, retailer) for one size+width of a shoe.
+
+        Returns one row per (variant, retailer) pair that has any snapshot in the
+        supplied retailers, picking the most recent snapshot for that pair.
+        Callers (the evaluator) apply in-stock, colorway, and threshold filters.
+        """
+        if not retailers:
+            return []
+        placeholders = ",".join("?" * len(retailers))
+        rows = self.db._conn.execute(
+            f"""
+            SELECT
+              v.id AS v_id,
+              v.canonical_shoe_id AS v_canonical_shoe_id,
+              v.size AS v_size, v.width AS v_width,
+              v.colorway_name AS v_colorway_name,
+              v.colorway_code AS v_colorway_code,
+              v.mfr_style_code AS v_mfr_style_code,
+              v.image_url AS v_image_url,
+              ps.id AS ps_id, ps.retailer AS ps_retailer,
+              ps.price_usd AS ps_price_usd, ps.in_stock AS ps_in_stock,
+              ps.scraped_at AS ps_scraped_at, ps.source_url AS ps_source_url
+            FROM shoe_variants v
+            JOIN price_snapshots ps ON ps.shoe_variant_id = v.id
+            JOIN (
+                SELECT shoe_variant_id, retailer, MAX(scraped_at) AS last_at
+                FROM price_snapshots
+                WHERE retailer IN ({placeholders})
+                GROUP BY shoe_variant_id, retailer
+            ) latest
+              ON latest.shoe_variant_id = ps.shoe_variant_id
+             AND latest.retailer = ps.retailer
+             AND latest.last_at = ps.scraped_at
+            WHERE v.canonical_shoe_id = ?
+              AND v.size = ?
+              AND v.width = ?
+            """,
+            (*retailers, canonical_shoe_id, size, width),
+        ).fetchall()
+        out: list[tuple[ShoeVariant, PriceSnapshot]] = []
+        for row in rows:
+            variant = ShoeVariant(
+                id=row["v_id"],
+                canonical_shoe_id=row["v_canonical_shoe_id"],
+                size=row["v_size"], width=row["v_width"],
+                colorway_name=row["v_colorway_name"],
+                colorway_code=row["v_colorway_code"],
+                mfr_style_code=row["v_mfr_style_code"],
+                image_url=row["v_image_url"],
+            )
+            snap = PriceSnapshot(
+                id=row["ps_id"],
+                shoe_variant_id=row["v_id"],
+                retailer=row["ps_retailer"],
+                price_usd=row["ps_price_usd"],
+                in_stock=bool(row["ps_in_stock"]),
+                scraped_at=_parse_dt(row["ps_scraped_at"]),
+                source_url=row["ps_source_url"],
+            )
+            out.append((variant, snap))
+        return out
+
 
 class NotificationRepo:
     def __init__(self, db: Database):
