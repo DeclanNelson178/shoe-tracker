@@ -20,7 +20,6 @@ from ..evaluator import TriggeredAlert
 from ..models import User
 from .base import Notifier
 
-
 # Type alias for the smtplib factory. Production uses `smtplib.SMTP_SSL`, tests
 # inject a stub. The object must support login, send_message, and the context
 # manager protocol.

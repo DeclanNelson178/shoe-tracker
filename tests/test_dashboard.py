@@ -7,7 +7,6 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from shoe_tracker.dashboard import (
-    DashboardData,
     build,
     render_html,
     render_json,

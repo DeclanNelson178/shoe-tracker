@@ -20,7 +20,6 @@ from shoe_tracker.adapters.holabird import (
 )
 from shoe_tracker.models import CanonicalShoe
 
-
 FIXTURES = Path(__file__).parent / "fixtures" / "holabird"
 
 

@@ -205,7 +205,8 @@ class ShoeRepo:
                 ),
             )
         row = self.db._conn.execute(
-            "SELECT * FROM shoe_variants WHERE canonical_shoe_id=? AND size=? AND width=? AND colorway_name=?",
+            "SELECT * FROM shoe_variants "
+            "WHERE canonical_shoe_id=? AND size=? AND width=? AND colorway_name=?",
             (v.canonical_shoe_id, v.size, v.width, v.colorway_name),
         ).fetchone()
         return _row_to_variant(row)

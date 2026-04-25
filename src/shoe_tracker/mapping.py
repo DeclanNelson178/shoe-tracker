@@ -24,7 +24,6 @@ from enum import Enum
 from .adapters.base import SearchResult
 from .models import CanonicalShoe
 
-
 AUTO_THRESHOLD = 0.9
 FLAG_THRESHOLD = 0.6
 

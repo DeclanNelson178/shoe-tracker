@@ -7,7 +7,6 @@ from click.testing import CliRunner
 from shoe_tracker.adapters import ADAPTERS, RunningWarehouseAdapter
 from shoe_tracker.cli import main
 
-
 FIXTURES = Path(__file__).parent / "fixtures" / "running_warehouse"
 
 
