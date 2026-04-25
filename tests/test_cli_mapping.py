@@ -90,8 +90,8 @@ def stub_all_adapters(monkeypatch):
         "/shoes/": _read("road_runner_sports", "product_novablast_mens.html"),
     })
     hola = _StubClient({
-        "/catalogsearch/": _read("holabird", "search_novablast.html"),
-        "/p/": _read("holabird", "product_novablast_mens_gravel.html"),
+        "holabirdsports.com/search": _read("holabird", "search_novablast.html"),
+        "/products/": _read("holabird", "product_novablast_mens_gravel.html"),
     })
     jr = _StubClient({
         "/search?q=": _read("jackrabbit", "search_novablast.html"),
@@ -234,12 +234,12 @@ def test_rotation_map_all_then_status_picks_cheapest_retailer(
 ):
     """Chunk 4 checkpoint: status shows the min price across all retailers.
 
-    Fixtures set prices:
+    Fixtures set in-stock 10.5 D prices:
       - Running Warehouse: $149.95 (Gravel/White)
-      - Road Runner Sports: $119.99 (Thunder Blue/Tangerine, 10.5 D in stock)
-      - Holabird: $94.95 (Gravel/White, 10.5 D in stock)
-      - JackRabbit: $119.95 (Black/Mint, 10.5 D in stock)
-    Holabird is cheapest.
+      - Road Runner Sports: $119.99 (Thunder Blue/Tangerine)
+      - Holabird: out of stock at this size on the captured PDP
+      - JackRabbit: $119.95 (Black/Mint)
+    JackRabbit is cheapest among the in-stock options.
     """
     db_path = tmp_path / "t.db"
     review = tmp_path / "review.md"
@@ -257,8 +257,8 @@ def test_rotation_map_all_then_status_picks_cheapest_retailer(
     )
     assert status.exit_code == 0, status.output
     assert "Novablast 5" in status.output
-    assert "current min $94.95" in status.output
-    assert "@ holabird" in status.output
+    assert "current min $119.95" in status.output
+    assert "@ jackrabbit" in status.output
 
 
 def test_rotation_status_handles_unmapped(tmp_path, fake_config, stub_rw_adapter):
