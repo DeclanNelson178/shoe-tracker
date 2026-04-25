@@ -16,7 +16,6 @@ from shoe_tracker.adapters import (
 )
 from shoe_tracker.cli import main
 
-
 FIXTURES_ROOT = Path(__file__).parent / "fixtures"
 FIXTURES = FIXTURES_ROOT / "running_warehouse"
 

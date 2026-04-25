@@ -13,6 +13,20 @@ permissions:
   contents: read
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install ruff
+        run: pip install "ruff==0.15.12"
+      - name: ruff check
+        run: ruff check .
+
   unit:
     runs-on: ubuntu-latest
     timeout-minutes: 10

@@ -9,6 +9,7 @@ import click
 from . import config as config_mod
 from .adapters import ADAPTERS, VariantPrice, get_adapter
 from .db import (
+    DEFAULT_DB_PATH,
     Database,
     NotificationRepo,
     PriceSnapshotRepo,
@@ -16,8 +17,9 @@ from .db import (
     ShoeRepo,
     UserRepo,
     WatchlistRepo,
+)
+from .db import (
     init_db as run_init_db,
-    DEFAULT_DB_PATH,
 )
 from .evaluator import TriggeredAlert, evaluate
 from .mapping import MappingOutcome, MappingTier, pick_best

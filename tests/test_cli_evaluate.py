@@ -20,18 +20,13 @@ from shoe_tracker.db import (
     PriceSnapshotRepo,
     RetailerMappingRepo,
     ShoeRepo,
-    UserRepo,
     WatchlistRepo,
-    init_db,
 )
 from shoe_tracker.models import (
     CanonicalShoe,
-    NotificationRecord,
     PriceSnapshot,
     RetailerMapping,
     ShoeVariant,
-    User,
-    WatchlistEntry,
 )
 
 

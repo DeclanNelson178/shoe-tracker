@@ -10,6 +10,7 @@ import json
 from datetime import datetime, timezone
 
 from render_dashboard import main
+
 from shoe_tracker.db import (
     Database,
     PriceSnapshotRepo,

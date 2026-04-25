@@ -26,7 +26,6 @@ from ..models import CanonicalShoe
 from .base import RetailerAdapter, SearchResult, VariantPrice
 from .http import HttpClient, PoliteClient
 
-
 BASE_URL = "https://www.runningwarehouse.com"
 
 

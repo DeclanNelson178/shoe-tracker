@@ -8,7 +8,6 @@ from pydantic import ValidationError
 
 from .models import RotationConfig
 
-
 DEFAULT_PATH = Path("config/rotation.yaml")
 
 

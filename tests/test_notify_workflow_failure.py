@@ -7,7 +7,6 @@ be cleanly testable with an injected SMTP factory.
 from __future__ import annotations
 
 import pytest
-
 from notify_workflow_failure import build_message, main
 
 

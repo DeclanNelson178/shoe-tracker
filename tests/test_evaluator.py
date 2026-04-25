@@ -34,7 +34,6 @@ from shoe_tracker.models import (
     WatchlistEntry,
 )
 
-
 NOW = datetime(2026, 4, 22, 12, 0, tzinfo=timezone.utc)
 
 
@@ -293,7 +292,7 @@ def test_denylist_excludes_listed_colorways(db):
 
 def test_dedup_within_7_days(db):
     shoe = _seed_novablast(db)
-    entry = _add_watch(db, shoe, threshold=100.0)
+    _add_watch(db, shoe, threshold=100.0)
     _add_mapping(db, shoe, "running_warehouse")
     v = _add_variant(db, shoe)
     _snap(db, v, price=94.95)

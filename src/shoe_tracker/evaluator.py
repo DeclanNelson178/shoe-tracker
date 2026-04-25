@@ -31,7 +31,6 @@ from .db import (
 )
 from .models import CanonicalShoe, ShoeVariant, WatchlistEntry
 
-
 DEDUP_WINDOW = timedelta(days=7)
 
 

@@ -12,14 +12,13 @@ from pathlib import Path
 import pytest
 
 from shoe_tracker.adapters import RunningWarehouseAdapter
-from shoe_tracker.adapters.base import SearchResult, VariantPrice
+from shoe_tracker.adapters.base import VariantPrice
 from shoe_tracker.adapters.running_warehouse import (
     BASE_URL,
     parse_product_page,
     parse_search_results,
 )
 from shoe_tracker.models import CanonicalShoe
-
 
 FIXTURES = Path(__file__).parent / "fixtures" / "running_warehouse"
 
