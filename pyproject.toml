@@ -28,7 +28,7 @@ shoe-tracker = "shoe_tracker.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-shoe_tracker = ["db/migrations/*.sql"]
+shoe_tracker = ["db/migrations/*.sql", "templates/*.html"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

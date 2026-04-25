@@ -177,6 +177,19 @@ class ShoeRepo:
         ).fetchall()
         return [_row_to_canonical(r) for r in rows]
 
+    def list_variants_by_ids(self, ids: Iterable[int]) -> list[ShoeVariant]:
+        """Bulk-fetch variants by id. Used by the dashboard's alert-history
+        section, which needs a variant per notification record. Returns rows
+        in arbitrary order; callers re-key by id."""
+        ids = list(ids)
+        if not ids:
+            return []
+        placeholders = ",".join("?" * len(ids))
+        rows = self.db._conn.execute(
+            f"SELECT * FROM shoe_variants WHERE id IN ({placeholders})", tuple(ids),
+        ).fetchall()
+        return [_row_to_variant(r) for r in rows]
+
     def upsert_variant(self, v: ShoeVariant) -> ShoeVariant:
         with self.db.tx() as c:
             c.execute(
@@ -410,6 +423,33 @@ class NotificationRepo:
         if not row:
             return None
         return _parse_dt(row["sent_at"])
+
+    def list_recent_for_user(
+        self, *, user_id: str, since: datetime,
+    ) -> list[NotificationRecord]:
+        """Notifications a user received at or after `since`, newest first.
+
+        Used by the dashboard to render the last 30 days of alert history.
+        """
+        rows = self.db._conn.execute(
+            "SELECT id, user_id, shoe_variant_id, retailer, triggering_price, "
+            "sent_at, channel FROM notifications_sent "
+            "WHERE user_id=? AND sent_at >= ? "
+            "ORDER BY sent_at DESC",
+            (user_id, since.isoformat()),
+        ).fetchall()
+        return [
+            NotificationRecord(
+                id=r["id"],
+                user_id=r["user_id"],
+                shoe_variant_id=r["shoe_variant_id"],
+                retailer=r["retailer"],
+                triggering_price=r["triggering_price"],
+                sent_at=_parse_dt(r["sent_at"]),
+                channel=r["channel"],
+            )
+            for r in rows
+        ]
 
 
 # --- row adapters ---

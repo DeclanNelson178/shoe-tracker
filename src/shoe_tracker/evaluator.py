@@ -89,7 +89,7 @@ def evaluate(
             for (variant, snap) in candidates
             if snap.in_stock
             and snap.price_usd <= entry.threshold_usd
-            and _colorway_matches(entry, variant)
+            and colorway_matches(entry, variant)
             and not _recently_notified(
                 notif_repo, user_id, variant, snap.retailer, now, dedup_window,
             )
@@ -105,7 +105,12 @@ def evaluate(
     return alerts
 
 
-def _colorway_matches(entry: WatchlistEntry, variant: ShoeVariant) -> bool:
+def colorway_matches(entry: WatchlistEntry, variant: ShoeVariant) -> bool:
+    """True if `variant` passes `entry`'s colorway policy.
+
+    Public so the dashboard's "headline price" reflects what would actually
+    trigger an alert (including allowlist/denylist filtering).
+    """
     policy = entry.colorway_policy
     if policy == "any":
         return True
