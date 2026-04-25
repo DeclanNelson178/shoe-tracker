@@ -319,6 +319,19 @@ class PriceSnapshotRepo:
                 count += 1
         return count
 
+    def prune_older_than(self, cutoff: datetime) -> int:
+        """Delete price snapshots scraped strictly before `cutoff`.
+
+        Keeps the committed sqlite from growing unboundedly — the daily scrape
+        invokes this with a 90-day cutoff. Returns the deleted-row count.
+        """
+        with self.db.tx() as c:
+            cur = c.execute(
+                "DELETE FROM price_snapshots WHERE scraped_at < ?",
+                (cutoff.isoformat(),),
+            )
+            return cur.rowcount
+
     def latest_for_variant(self, shoe_variant_id: int) -> PriceSnapshot | None:
         row = self.db._conn.execute(
             "SELECT * FROM price_snapshots WHERE shoe_variant_id=? ORDER BY scraped_at DESC LIMIT 1",

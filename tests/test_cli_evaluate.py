@@ -6,7 +6,7 @@ Fixtures seed the DB so we don't need adapters or network.
 from __future__ import annotations
 
 import textwrap
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -211,6 +211,54 @@ def test_evaluate_without_notifier_skips_send_but_reports(tmp_path, fake_config,
         assert NotificationRepo(db).last_sent_at(
             user_id="me", shoe_variant_id=1, retailer="running_warehouse",
         ) is None
+
+
+# --- prune ---
+
+def test_rotation_prune_drops_old_snapshots(tmp_path, fake_config):
+    db_path = tmp_path / "t.db"
+    _init_and_seed(db_path, fake_config)
+    with Database(db_path) as db:
+        shoe = ShoeRepo(db).list_canonical()[0]
+        variant = ShoeRepo(db).upsert_variant(ShoeVariant(
+            canonical_shoe_id=shoe.id, size=10.5, width="D",
+            colorway_name="Black/Mint",
+        ))
+        repo = PriceSnapshotRepo(db)
+        repo.insert(PriceSnapshot(
+            shoe_variant_id=variant.id, retailer="running_warehouse",
+            price_usd=89.0, in_stock=True,
+            scraped_at=datetime.now(timezone.utc) - timedelta(days=200),
+            source_url="https://rw/x",
+        ))
+        repo.insert(PriceSnapshot(
+            shoe_variant_id=variant.id, retailer="running_warehouse",
+            price_usd=89.0, in_stock=True,
+            scraped_at=datetime.now(timezone.utc),
+            source_url="https://rw/x",
+        ))
+
+    runner = CliRunner()
+    result = _run(
+        runner, "rotation", "prune", "--days", "90",
+        db_path=db_path, config_path=fake_config,
+    )
+    assert result.exit_code == 0, result.output
+    assert "Pruned 1" in result.output
+    with Database(db_path) as db:
+        rows = db._conn.execute("SELECT COUNT(*) AS n FROM price_snapshots").fetchone()
+    assert rows["n"] == 1
+
+
+def test_rotation_prune_rejects_zero_or_negative_days(tmp_path, fake_config):
+    db_path = tmp_path / "t.db"
+    _init_and_seed(db_path, fake_config)
+    runner = CliRunner()
+    result = _run(
+        runner, "rotation", "prune", "--days", "0",
+        db_path=db_path, config_path=fake_config,
+    )
+    assert result.exit_code != 0
 
 
 def test_evaluate_send_failure_does_not_write_dedup_row(tmp_path, fake_config, monkeypatch):
