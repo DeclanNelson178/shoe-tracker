@@ -8,6 +8,7 @@ import click
 
 from . import config as config_mod
 from .adapters import ADAPTERS, VariantPrice, get_adapter
+from .adapters.http import RateLimitedError
 from .db import (
     DEFAULT_DB_PATH,
     Database,
@@ -164,15 +165,34 @@ def rotation_map(
 
         for r_name in retailers:
             adapter = get_adapter(r_name)
+            rate_limited = False
             for entry in entries:
+                if rate_limited:
+                    continue
                 shoe = shoes_by_id.get(entry.canonical_shoe_id)
                 if shoe is None:
                     continue
-                outcome = _map_one(adapter, shoe)
+                try:
+                    outcome = _map_one(adapter, shoe)
+                except RateLimitedError as exc:
+                    click.echo(
+                        f"  ! {r_name} rate-limited: {exc} — skipping for this run",
+                        err=True,
+                    )
+                    rate_limited = True
+                    continue
                 _echo_outcome(shoe, r_name, outcome)
                 if outcome.best is None:
                     continue
-                _persist_outcome(db, shoe, r_name, outcome)
+                try:
+                    _persist_outcome(db, shoe, r_name, outcome)
+                except RateLimitedError as exc:
+                    click.echo(
+                        f"  ! {r_name} rate-limited during fetch: {exc} — skipping for this run",
+                        err=True,
+                    )
+                    rate_limited = True
+                    continue
                 if outcome.tier is MappingTier.FLAGGED:
                     flagged.append((shoe, r_name, outcome))
 
@@ -442,9 +462,16 @@ def _fmt_money(v: float) -> str:
 
 
 def _map_one(adapter, shoe: CanonicalShoe) -> MappingOutcome:
-    """Search the retailer for one canonical shoe and score the candidates."""
+    """Search the retailer for one canonical shoe and score the candidates.
+
+    `RateLimitedError` propagates out so the caller can short-circuit the
+    whole retailer for this run. Other exceptions are logged and treated as
+    a rejected mapping for this single shoe.
+    """
     try:
         results = adapter.search(shoe)
+    except RateLimitedError:
+        raise
     except Exception as exc:  # pragma: no cover — defensive; live adapter errors
         click.echo(f"  ! {adapter.name} search failed: {exc}", err=True)
         return MappingOutcome(best=None, confidence=0.0, tier=MappingTier.REJECTED)
@@ -479,10 +506,13 @@ def _persist_outcome(
         confidence=outcome.confidence,
     ))
     # Snapshot the variants from the mapped page so `rotation status` has data
-    # to render. Failure here shouldn't break the whole map run.
+    # to render. Rate-limit errors propagate so the caller can skip the whole
+    # retailer; other failures are logged and don't break the map run.
     try:
         adapter = get_adapter(retailer)
         variants = adapter.fetch_variants(best.product_url)
+    except RateLimitedError:
+        raise
     except Exception as exc:
         click.echo(f"  ! variant fetch failed: {exc}", err=True)
         return
