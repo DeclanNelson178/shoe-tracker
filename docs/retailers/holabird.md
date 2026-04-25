@@ -4,43 +4,55 @@ Adapter: `shoe_tracker.adapters.holabird.HolabirdAdapter`.
 
 ## Site shape
 
-- **Search.** `GET /catalogsearch/result/?q=<query>`. Magento 2 renders a
-  `<ol class="products list">` grid of `<li class="product-item">` cards. One
-  URL per colorway, like Running Warehouse.
-- **Product page.** One PDP per colorway. Price is product-level — Holabird
-  doesn't vary price per size/width within a single colorway. Size picker is
-  a `<ul class="product-sizes" data-width="D">` with one `<li>` per size;
-  each `<li>` carries `.in-stock` or `.out-of-stock` as class hints. 2E-width
-  variants render as a separate `<ul data-width="2E">`.
-- **Style number** lives in a `.product-spec-table` row keyed "Style Number".
-  Format matches RW — `1011B974.020`.
-- **Clearance.** Clearance colorways are discoverable from the search page
-  (title ends "– Clearance") and show both a `.was-price` and a current
-  `.price` in the wrapper. We always report the current price.
+- **Platform.** Shopify storefront at `holabirdsports.com`. The pre-2026 site
+  was Magento 2 — old fixtures and the old parser targeted that. The Shopify
+  migration changed every selector, which is what the chunk-8 health probe
+  caught.
+- **Search.** `GET /search?q=<query>`. Returns a single page of
+  `.product-item--vertical` cards. Each card's title link points at
+  `/products/<slug>`. One URL per colorway, like Running Warehouse.
+- **Product page.** Shopify PDP with every variant in an inline
+  `<script type="application/json" id="ProductJson-…">` block. Options are
+  `["Size", "Width"]` — colorway is part of the product title, not a variant
+  option. We parse the JSON; the rendered size picker is hydrated from the
+  same data.
+- **Style number.** Rendered as a spec block with `id="style-number"` and a
+  `title="Style #: 1011B974.020"` attribute. Format matches RW.
+- **Cents.** Shopify prices are integers-in-cents. We divide by 100 to store
+  dollars on `VariantPrice.price_usd`.
 
 ## Stock handling
 
-- In-stock vs out-of-stock is purely class-driven (`.in-stock` vs
-  `.out-of-stock`). A size rendered without either class is treated as
-  out-of-stock to stay conservative.
-- Holabird leaves sold-out sizes in the DOM with `.out-of-stock`, so
-  `fetch_variants` returns them with `in_stock=False` and the evaluator can
-  reason about them.
+- Each variant carries an explicit `available` boolean. Out-of-stock variants
+  are still in the JSON, so `fetch_variants` returns them with
+  `in_stock=False`.
+
+## Sale pricing
+
+- Sale variants carry both `price` (current/sale) and `compare_at_price`
+  (regular). We always surface `price` — the current price the shopper would
+  actually pay. Search-card markup is the same shape: `.price--highlight` is
+  the current price, `.price--compare` is the was-price; the parser ignores
+  the compare element.
+
+## Width labels
+
+- Shopify's `option2` ships as a verbose label: `"D - Medium"`, `"EE - Wide"`.
+  The adapter normalizes the leading token to the short form used elsewhere
+  in the system: `D`, `2E`, `B`, `2A`, `4E`. Anything outside that map falls
+  through verbatim so the parser doesn't silently swallow a new label.
 
 ## Rate / etiquette
 
 - `polite_requests_per_minute = 20`.
 - `PoliteClient` sleeps 1–2s between requests.
-- Magento search is slower than the PDP — expect the search call to dominate
-  wall time.
+- One search + one PDP per canonical shoe per day is well under any
+  reasonable Shopify storefront rate limit.
 
 ## Known quirks
 
 - **One URL per colorway.** Same mapping-engine contract as RW: siblings are
-  separate `SearchResult` entries.
-- **Image CDN.** Image URLs are served from `cdn.holabirdsports.com`. That's
-  what gets stored on `VariantPrice.image_url`.
-- **No per-variant price.** Every variant on a given PDP shares the product's
-  current price — `VariantPrice.price_usd` is identical across sizes/widths
-  for that colorway. If a future Holabird redesign introduces per-size
-  pricing, the parser will need a new data-attribute on each `<li>`.
+  separate `SearchResult` entries. JackRabbit, by contrast, ships one URL per
+  product with all colorways inlined.
+- **Image CDN.** `featured_image` comes back protocol-relative
+  (`//www.holabirdsports.com/cdn/...`). The adapter prepends `https:`.
