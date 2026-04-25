@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -165,3 +165,34 @@ def test_notification_last_sent_at(db):
     got = repo.last_sent_at(user_id="me", shoe_variant_id=v.id, retailer="rw")
     assert got == ts
     assert repo.last_sent_at(user_id="me", shoe_variant_id=v.id, retailer="other") is None
+
+
+def test_notification_list_recent_for_user_filters_by_window_and_user(db):
+    UserRepo(db).upsert(User(id="me", email="me@example.com"))
+    UserRepo(db).upsert(User(id="other", email="other@example.com"))
+    shoe = ShoeRepo(db).upsert_canonical(
+        CanonicalShoe(brand="ASICS", model="Novablast", version="5", gender="mens")
+    )
+    v = ShoeRepo(db).upsert_variant(ShoeVariant(
+        canonical_shoe_id=shoe.id, size=10.5, width="D", colorway_name="Black/Mint",
+    ))
+    repo = NotificationRepo(db)
+    now = datetime(2026, 4, 25, 12, 0, tzinfo=timezone.utc)
+    for days_ago, retailer in [(1, "rw"), (10, "rrs"), (35, "holabird")]:
+        repo.insert(NotificationRecord(
+            user_id="me", shoe_variant_id=v.id, retailer=retailer,
+            triggering_price=89.0, sent_at=now - timedelta(days=days_ago),
+            channel="email",
+        ))
+    repo.insert(NotificationRecord(
+        user_id="other", shoe_variant_id=v.id, retailer="zappos",
+        triggering_price=110.0, sent_at=now - timedelta(hours=1), channel="email",
+    ))
+
+    cutoff = now - timedelta(days=30)
+    recent = repo.list_recent_for_user(user_id="me", since=cutoff)
+
+    # The 35-days-ago row is filtered out; the other-user row is filtered out;
+    # the remaining rows are sorted most-recent-first.
+    assert [n.retailer for n in recent] == ["rw", "rrs"]
+    assert all(n.user_id == "me" for n in recent)

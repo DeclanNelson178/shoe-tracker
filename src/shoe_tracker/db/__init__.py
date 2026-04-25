@@ -411,6 +411,33 @@ class NotificationRepo:
             return None
         return _parse_dt(row["sent_at"])
 
+    def list_recent_for_user(
+        self, *, user_id: str, since: datetime,
+    ) -> list[NotificationRecord]:
+        """Notifications a user received at or after `since`, newest first.
+
+        Used by the dashboard to render the last 30 days of alert history.
+        """
+        rows = self.db._conn.execute(
+            "SELECT id, user_id, shoe_variant_id, retailer, triggering_price, "
+            "sent_at, channel FROM notifications_sent "
+            "WHERE user_id=? AND sent_at >= ? "
+            "ORDER BY sent_at DESC",
+            (user_id, since.isoformat()),
+        ).fetchall()
+        return [
+            NotificationRecord(
+                id=r["id"],
+                user_id=r["user_id"],
+                shoe_variant_id=r["shoe_variant_id"],
+                retailer=r["retailer"],
+                triggering_price=r["triggering_price"],
+                sent_at=_parse_dt(r["sent_at"]),
+                channel=r["channel"],
+            )
+            for r in rows
+        ]
+
 
 # --- row adapters ---
 
