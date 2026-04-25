@@ -1,5 +1,8 @@
 # shoe-tracker
 
+[![Scrape](https://github.com/DeclanNelson178/shoe-tracker/actions/workflows/scrape.yml/badge.svg)](https://github.com/DeclanNelson178/shoe-tracker/actions/workflows/scrape.yml)
+[![Tests](https://github.com/DeclanNelson178/shoe-tracker/actions/workflows/test.yml/badge.svg)](https://github.com/DeclanNelson178/shoe-tracker/actions/workflows/test.yml)
+
 Personal running shoe price tracker. Watches a configured rotation of shoes
 across running-specialty retailers and emails me when a variant in my size and
 an acceptable colorway drops below a threshold.
