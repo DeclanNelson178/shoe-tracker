@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>shoe-tracker</title>
+  <style>
+    :root {
+      --bg: #fafafa;
+      --fg: #1f1f1f;
+      --muted: #666;
+      --card: #ffffff;
+      --border: #e5e5e5;
+      --green: #2e7d32;
+      --green-bg: #e8f5e9;
+      --yellow: #b8860b;
+      --yellow-bg: #fff8e1;
+      --red: #c62828;
+      --red-bg: #ffebee;
+      --gray: #555;
+      --gray-bg: #eeeeee;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      margin: 0;
+      padding: 1rem;
+      max-width: 56rem;
+      margin-inline: auto;
+      line-height: 1.45;
+    }
+    h1 { margin: 0 0 0.5rem; font-size: 1.5rem; }
+    .meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.25rem; }
+    .stale-banner {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid var(--red);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+    .empty {
+      color: var(--muted);
+      padding: 1rem;
+      text-align: center;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+    }
+    .entry {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .entry-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+    .shoe-name { font-size: 1.1rem; font-weight: 600; margin: 0; }
+    .spec { color: var(--muted); font-size: 0.9rem; }
+    .price-pill {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.4rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      white-space: nowrap;
+    }
+    .price-pill .delta { font-weight: 400; font-size: 0.85em; opacity: 0.85; }
+    .state-below { background: var(--green-bg); color: var(--green); }
+    .state-near  { background: var(--yellow-bg); color: var(--yellow); }
+    .state-above { background: var(--red-bg); color: var(--red); }
+    .state-no_data { background: var(--gray-bg); color: var(--gray); }
+    .headline {
+      display: flex;
+      gap: 0.75rem;
+      margin: 0.75rem 0 0.5rem;
+      align-items: center;
+    }
+    .headline img {
+      width: 64px; height: 64px; object-fit: cover;
+      border-radius: 6px; border: 1px solid var(--border);
+    }
+    .headline .info { font-size: 0.9rem; color: var(--muted); }
+    .headline .info a { color: inherit; }
+    details { margin-top: 0.5rem; }
+    summary {
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: var(--muted);
+      user-select: none;
+    }
+    table.rows {
+      width: 100%;
+      margin-top: 0.5rem;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    table.rows th, table.rows td {
+      text-align: left;
+      padding: 0.4rem 0.5rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    table.rows th { color: var(--muted); font-weight: 500; }
+    table.rows .num { text-align: right; font-variant-numeric: tabular-nums; }
+    table.rows .oos { color: var(--muted); }
+    table.rows .skip { color: var(--muted); font-style: italic; }
+    table.rows img.thumb {
+      width: 36px; height: 36px; object-fit: cover;
+      border-radius: 4px; border: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .stamp { color: var(--muted); font-size: 0.85rem; margin-top: 0.5rem; }
+    h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem; }
+    table.history {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    table.history th, table.history td {
+      padding: 0.5rem 0.6rem;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    table.history th { color: var(--muted); font-weight: 500; }
+    table.history tr:last-child td { border-bottom: 0; }
+    @media (max-width: 480px) {
+      body { padding: 0.75rem; }
+      .entry-head { flex-direction: column; align-items: flex-start; }
+      table.rows th.col-img, table.rows td.col-img { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <h1>shoe-tracker</h1>
+  <p class="meta">
+    Generated {{ data.generated_at | dt }}
+    {% if data.last_scrape_at %}· last scrape {{ data.last_scrape_at | dt }}{% endif %}
+  </p>
+
+  {% if data.is_stale %}
+    <div class="stale-banner">
+      Data is stale —
+      {% if data.last_scrape_at %}
+        last scrape was {{ data.last_scrape_at | dt }}.
+      {% else %}
+        no scrapes have run yet.
+      {% endif %}
+      Check the Scrape workflow.
+    </div>
+  {% endif %}
+
+  {% if not data.entries %}
+    <p class="empty">No watchlist entries.</p>
+  {% endif %}
+
+  {% for e in data.entries %}
+    <article class="entry">
+      <div class="entry-head">
+        <div>
+          <p class="shoe-name">{{ e.shoe_display }}</p>
+          <p class="spec">
+            {{ e.gender_letter }} {{ e.size | size }} {{ e.width }} ·
+            {{ e.policy_label }} ·
+            threshold {{ e.threshold_usd | money }}
+          </p>
+        </div>
+        <span class="price-pill state-{{ e.state }}">
+          {% if e.headline %}
+            {{ e.headline.price_usd | money }}
+            <span class="delta">
+              {% set d = e.threshold_usd - e.headline.price_usd %}
+              {% if d >= 0 %}save {{ d | money }}{% else %}+{{ (-d) | money }} over{% endif %}
+            </span>
+          {% else %}
+            no in-stock match
+          {% endif %}
+        </span>
+      </div>
+
+      {% if e.headline %}
+        <div class="headline">
+          {% if e.headline.image_url %}
+            <a href="{{ e.headline.source_url }}" target="_blank" rel="noopener">
+              <img src="{{ e.headline.image_url }}" alt="{{ e.headline.colorway_name }}">
+            </a>
+          {% endif %}
+          <div class="info">
+            {{ e.headline.colorway_name }} @ {{ e.headline.retailer }}
+            · <a href="{{ e.headline.source_url }}" target="_blank" rel="noopener">view</a>
+          </div>
+        </div>
+      {% endif %}
+
+      <details>
+        <summary>{{ e.rows | length }} variant{{ '' if (e.rows | length) == 1 else 's' }} across retailers</summary>
+        {% if e.rows %}
+          <table class="rows">
+            <thead>
+              <tr>
+                <th class="col-img"></th>
+                <th>Retailer</th>
+                <th>Colorway</th>
+                <th class="num">Price</th>
+                <th>Stock</th>
+                <th>Scraped</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in e.rows %}
+                <tr class="{% if not r.in_stock %}oos{% endif %}{% if not r.matches_policy %} skip{% endif %}">
+                  <td class="col-img">
+                    {% if r.image_url %}
+                      <a href="{{ r.source_url }}" target="_blank" rel="noopener">
+                        <img class="thumb" src="{{ r.image_url }}" alt="">
+                      </a>
+                    {% endif %}
+                  </td>
+                  <td>{{ r.retailer }}</td>
+                  <td>
+                    <a href="{{ r.source_url }}" target="_blank" rel="noopener">{{ r.colorway_name }}</a>
+                    {% if not r.matches_policy %}<span title="excluded by colorway policy"> · skip</span>{% endif %}
+                  </td>
+                  <td class="num">{{ r.price_usd | money }}</td>
+                  <td>{{ 'in stock' if r.in_stock else 'out of stock' }}</td>
+                  <td>{{ r.scraped_at | dt }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="empty">No variants snapshotted yet.</p>
+        {% endif %}
+      </details>
+    </article>
+  {% endfor %}
+
+  <h2>Recent alerts</h2>
+  {% if data.alerts %}
+    <table class="history">
+      <thead>
+        <tr>
+          <th>Sent</th>
+          <th>Shoe</th>
+          <th>Variant</th>
+          <th>Retailer</th>
+          <th class="num">Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in data.alerts %}
+          <tr>
+            <td>{{ a.sent_at | dt }}</td>
+            <td>{{ a.shoe_display }}</td>
+            <td>{{ a.size | size }} {{ a.width }} {{ a.colorway_name }}</td>
+            <td>{{ a.retailer }}</td>
+            <td class="num">{{ a.triggering_price | money }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="empty">No alerts in the last 30 days.</p>
+  {% endif %}
+</body>
+</html>

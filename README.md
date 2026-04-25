@@ -24,6 +24,18 @@ python -m shoe_tracker probe running_warehouse \
 
 Edit `config/rotation.yaml` to add shoes.
 
+## Dashboard
+
+The daily Scrape workflow renders `docs/index.html` and `docs/data.json` from
+the committed sqlite. Once GitHub Pages is configured to serve from `docs/`
+on `main`, the dashboard is glanceable at the published Pages URL. To render
+it locally:
+
+```bash
+python scripts/render_dashboard.py        # writes docs/index.html + docs/data.json
+open docs/index.html
+```
+
 ## Layout
 
 ```
@@ -32,8 +44,13 @@ src/shoe_tracker/          # package
   config.py                # rotation.yaml loader
   db.py                    # sqlite + repository pattern
   cli.py                   # command-line entrypoint
+  evaluator.py             # threshold + colorway-policy evaluator
+  dashboard.py             # view-model + Jinja rendering for the static dashboard
+  notifiers/               # email + (future) other channels
   adapters/                # retailer scrapers (RetailerAdapter + per-retailer)
+  templates/               # Jinja templates (dashboard.html)
   db/migrations/           # SQL schema migrations
+scripts/                   # workflow entry points (render_dashboard, notify_workflow_failure)
 config/rotation.yaml       # the watchlist (hand-edited)
 docs/retailers/            # per-retailer scraping notes
 tests/                     # pytest suite (live tests env-gated)

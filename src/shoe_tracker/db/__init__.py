@@ -177,6 +177,19 @@ class ShoeRepo:
         ).fetchall()
         return [_row_to_canonical(r) for r in rows]
 
+    def list_variants_by_ids(self, ids: Iterable[int]) -> list[ShoeVariant]:
+        """Bulk-fetch variants by id. Used by the dashboard's alert-history
+        section, which needs a variant per notification record. Returns rows
+        in arbitrary order; callers re-key by id."""
+        ids = list(ids)
+        if not ids:
+            return []
+        placeholders = ",".join("?" * len(ids))
+        rows = self.db._conn.execute(
+            f"SELECT * FROM shoe_variants WHERE id IN ({placeholders})", tuple(ids),
+        ).fetchall()
+        return [_row_to_variant(r) for r in rows]
+
     def upsert_variant(self, v: ShoeVariant) -> ShoeVariant:
         with self.db.tx() as c:
             c.execute(
