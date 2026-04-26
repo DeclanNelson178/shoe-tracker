@@ -10,9 +10,20 @@
         "retailer": "running_warehouse",
         "source_url": "https://www.runningwarehouse.com/ASICS_Novablast_5/descpage-ANB5M4.html"
       },
-      "last_scraped_at": "2026-04-25T16:10:48.542118+00:00",
+      "last_scraped_at": "2026-04-26T14:39:57.918705+00:00",
       "policy_label": "any colorway",
       "rows": [
+        {
+          "colorway_code": null,
+          "colorway_name": "Gravel/White",
+          "image_url": "https://www.holabirdsports.com/cdn/shop/files/043982_3.jpg?v=1765825814",
+          "in_stock": false,
+          "matches_policy": true,
+          "price_usd": 149.95,
+          "retailer": "holabird",
+          "scraped_at": "2026-04-26T14:39:56.251818+00:00",
+          "source_url": "https://www.holabirdsports.com/products/asics-novablast-5-mens-gravel-white"
+        },
         {
           "colorway_code": "ANB5M4",
           "colorway_name": "Arctic Blue/Aegean Blue",
@@ -21,7 +32,7 @@
           "matches_policy": true,
           "price_usd": 149.95,
           "retailer": "running_warehouse",
-          "scraped_at": "2026-04-25T16:10:48.542118+00:00",
+          "scraped_at": "2026-04-26T14:39:57.918705+00:00",
           "source_url": "https://www.runningwarehouse.com/ASICS_Novablast_5/descpage-ANB5M4.html"
         }
       ],
@@ -32,7 +43,7 @@
       "width": "D"
     }
   ],
-  "generated_at": "2026-04-25T16:10:49.254973+00:00",
+  "generated_at": "2026-04-26T14:39:58.665726+00:00",
   "is_stale": false,
-  "last_scrape_at": "2026-04-25T16:10:48.542118+00:00"
+  "last_scrape_at": "2026-04-26T14:39:57.918705+00:00"
 }
