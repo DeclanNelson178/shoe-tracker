@@ -10,7 +10,7 @@
         "retailer": "running_warehouse",
         "source_url": "https://www.runningwarehouse.com/ASICS_Novablast_5/descpage-ANB5M4.html"
       },
-      "last_scraped_at": "2026-04-28T16:10:13.506993+00:00",
+      "last_scraped_at": "2026-04-29T15:54:32.500431+00:00",
       "policy_label": "any colorway",
       "rows": [
         {
@@ -21,7 +21,7 @@
           "matches_policy": true,
           "price_usd": 149.95,
           "retailer": "holabird",
-          "scraped_at": "2026-04-28T16:10:11.845114+00:00",
+          "scraped_at": "2026-04-29T15:54:29.330191+00:00",
           "source_url": "https://www.holabirdsports.com/products/asics-novablast-5-mens-gravel-white"
         },
         {
@@ -32,7 +32,7 @@
           "matches_policy": true,
           "price_usd": 149.95,
           "retailer": "running_warehouse",
-          "scraped_at": "2026-04-28T16:10:13.506993+00:00",
+          "scraped_at": "2026-04-29T15:54:32.500431+00:00",
           "source_url": "https://www.runningwarehouse.com/ASICS_Novablast_5/descpage-ANB5M4.html"
         }
       ],
@@ -43,7 +43,7 @@
       "width": "D"
     }
   ],
-  "generated_at": "2026-04-28T16:10:14.263062+00:00",
+  "generated_at": "2026-04-29T15:54:33.261314+00:00",
   "is_stale": false,
-  "last_scrape_at": "2026-04-28T16:10:13.506993+00:00"
+  "last_scrape_at": "2026-04-29T15:54:32.500431+00:00"
 }
