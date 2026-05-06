@@ -10,7 +10,7 @@
         "retailer": "holabird",
         "source_url": "https://www.holabirdsports.com/products/asics-novablast-5-mens-sunny-sizzle-sky-lemon-spark"
       },
-      "last_scraped_at": "2026-05-05T15:51:47.741343+00:00",
+      "last_scraped_at": "2026-05-06T16:01:03.595839+00:00",
       "policy_label": "any colorway",
       "rows": [
         {
@@ -21,7 +21,7 @@
           "matches_policy": true,
           "price_usd": 129.95,
           "retailer": "holabird",
-          "scraped_at": "2026-05-05T15:51:46.308006+00:00",
+          "scraped_at": "2026-05-06T16:01:01.972060+00:00",
           "source_url": "https://www.holabirdsports.com/products/asics-novablast-5-mens-sunny-sizzle-sky-lemon-spark"
         },
         {
@@ -43,7 +43,7 @@
           "matches_policy": true,
           "price_usd": 129.95,
           "retailer": "running_warehouse",
-          "scraped_at": "2026-05-05T15:51:47.741343+00:00",
+          "scraped_at": "2026-05-06T16:01:03.595839+00:00",
           "source_url": "https://www.runningwarehouse.com/ASICS_Novablast_5/descpage-ANB5M4.html"
         }
       ],
@@ -54,7 +54,7 @@
       "width": "D"
     }
   ],
-  "generated_at": "2026-05-05T15:51:48.521684+00:00",
+  "generated_at": "2026-05-06T16:01:04.301230+00:00",
   "is_stale": false,
-  "last_scrape_at": "2026-05-05T15:51:47.741343+00:00"
+  "last_scrape_at": "2026-05-06T16:01:03.595839+00:00"
 }
