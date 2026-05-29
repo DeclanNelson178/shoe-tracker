@@ -10,7 +10,7 @@
         "retailer": "holabird",
         "source_url": "https://www.holabirdsports.com/products/asics-novablast-5-mens-black-blue-fade"
       },
-      "last_scraped_at": "2026-05-28T17:32:59.988632+00:00",
+      "last_scraped_at": "2026-05-29T17:31:49.023838+00:00",
       "policy_label": "any colorway",
       "rows": [
         {
@@ -34,6 +34,17 @@
           "retailer": "holabird",
           "scraped_at": "2026-05-12T16:16:45.906628+00:00",
           "source_url": "https://www.holabirdsports.com/products/asics-novablast-5-mens-sunny-sizzle-sky-lemon-spark"
+        },
+        {
+          "colorway_code": null,
+          "colorway_name": "ASICS Track Club",
+          "image_url": "https://www.holabirdsports.com/cdn/shop/files/043137_3.jpg?v=1753204151",
+          "in_stock": false,
+          "matches_policy": true,
+          "price_usd": 129.95,
+          "retailer": "holabird",
+          "scraped_at": "2026-05-29T17:31:47.475096+00:00",
+          "source_url": "https://www.holabirdsports.com/products/asics-novablast-5-atc-mens-white-tuna-blue"
         },
         {
           "colorway_code": null,
@@ -65,7 +76,7 @@
           "matches_policy": true,
           "price_usd": 129.96,
           "retailer": "running_warehouse",
-          "scraped_at": "2026-05-28T17:32:59.988632+00:00",
+          "scraped_at": "2026-05-29T17:31:49.023838+00:00",
           "source_url": "https://www.runningwarehouse.com/ASICS_Novablast_5/descpage-ANB5M4.html"
         }
       ],
@@ -76,7 +87,7 @@
       "width": "D"
     }
   ],
-  "generated_at": "2026-05-28T17:33:00.720187+00:00",
+  "generated_at": "2026-05-29T17:31:49.726974+00:00",
   "is_stale": false,
-  "last_scrape_at": "2026-05-28T17:32:59.988632+00:00"
+  "last_scrape_at": "2026-05-29T17:31:49.023838+00:00"
 }
