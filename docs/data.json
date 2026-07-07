@@ -10,7 +10,7 @@
         "retailer": "holabird",
         "source_url": "https://www.holabirdsports.com/products/asics-novablast-5-mens-black-blue-fade"
       },
-      "last_scraped_at": "2026-07-06T16:49:45.148145+00:00",
+      "last_scraped_at": "2026-07-07T16:26:30.061973+00:00",
       "policy_label": "any colorway",
       "rows": [
         {
@@ -43,7 +43,7 @@
           "matches_policy": true,
           "price_usd": 129.95,
           "retailer": "holabird",
-          "scraped_at": "2026-07-06T16:49:43.930468+00:00",
+          "scraped_at": "2026-07-07T16:26:26.787893+00:00",
           "source_url": "https://www.holabirdsports.com/products/asics-novablast-5-atc-mens-white-tuna-blue"
         },
         {
@@ -109,7 +109,7 @@
           "matches_policy": true,
           "price_usd": 129.96,
           "retailer": "running_warehouse",
-          "scraped_at": "2026-07-06T16:49:45.148145+00:00",
+          "scraped_at": "2026-07-07T16:26:30.061973+00:00",
           "source_url": "https://www.runningwarehouse.com/ASICS_Novablast_5/descpage-ANB5M4.html"
         }
       ],
@@ -120,7 +120,7 @@
       "width": "D"
     }
   ],
-  "generated_at": "2026-07-06T16:49:45.833903+00:00",
+  "generated_at": "2026-07-07T16:26:30.858864+00:00",
   "is_stale": false,
-  "last_scrape_at": "2026-07-06T16:49:45.148145+00:00"
+  "last_scrape_at": "2026-07-07T16:26:30.061973+00:00"
 }
