@@ -10,7 +10,7 @@
         "retailer": "holabird",
         "source_url": "https://www.holabirdsports.com/products/asics-novablast-5-mens-black-cobalt-burst"
       },
-      "last_scraped_at": "2026-08-16T14:17:29.188972+00:00",
+      "last_scraped_at": "2026-08-17T14:22:19.258574+00:00",
       "policy_label": "any colorway",
       "rows": [
         {
@@ -21,7 +21,7 @@
           "matches_policy": true,
           "price_usd": 129.95,
           "retailer": "holabird",
-          "scraped_at": "2026-08-16T14:17:28.064388+00:00",
+          "scraped_at": "2026-08-17T14:22:17.623463+00:00",
           "source_url": "https://www.holabirdsports.com/products/asics-novablast-5-mens-black-cobalt-burst"
         },
         {
@@ -98,7 +98,7 @@
           "matches_policy": true,
           "price_usd": 129.96,
           "retailer": "running_warehouse",
-          "scraped_at": "2026-08-16T14:17:29.188972+00:00",
+          "scraped_at": "2026-08-17T14:22:19.258574+00:00",
           "source_url": "https://www.runningwarehouse.com/ASICS_Novablast_5/descpage-ANB5M4.html"
         }
       ],
@@ -109,7 +109,7 @@
       "width": "D"
     }
   ],
-  "generated_at": "2026-08-16T14:17:29.921649+00:00",
+  "generated_at": "2026-08-17T14:22:19.792563+00:00",
   "is_stale": false,
-  "last_scrape_at": "2026-08-16T14:17:29.188972+00:00"
+  "last_scrape_at": "2026-08-17T14:22:19.258574+00:00"
 }
