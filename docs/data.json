@@ -10,7 +10,7 @@
         "retailer": "running_warehouse",
         "source_url": "https://www.runningwarehouse.com/ASICS_Novablast_5/descpage-ANB5M4.html"
       },
-      "last_scraped_at": "2026-09-01T17:32:19.515015+00:00",
+      "last_scraped_at": "2026-09-02T17:33:52.557246+00:00",
       "policy_label": "any colorway",
       "rows": [
         {
@@ -23,17 +23,6 @@
           "retailer": "holabird",
           "scraped_at": "2026-08-02T14:58:23.777014+00:00",
           "source_url": "https://www.holabirdsports.com/products/asics-novablast-5-atc-mens-white-tuna-blue"
-        },
-        {
-          "colorway_code": "ANB5M4",
-          "colorway_name": "Arctic Blue/Aegean Blue",
-          "image_url": "https://img.runningwarehouse.com/watermark/rs.php?path=ANB5M4-1.jpg&nw=455",
-          "in_stock": false,
-          "matches_policy": true,
-          "price_usd": 129.95,
-          "retailer": "holabird",
-          "scraped_at": "2026-06-04T16:51:28.990895+00:00",
-          "source_url": "https://www.holabirdsports.com/products/asics-novablast-5-mens-arctic-blue-aegean-blue"
         },
         {
           "colorway_code": null,
@@ -54,7 +43,7 @@
           "matches_policy": true,
           "price_usd": 129.95,
           "retailer": "holabird",
-          "scraped_at": "2026-09-01T17:32:19.515015+00:00",
+          "scraped_at": "2026-09-02T17:33:52.557246+00:00",
           "source_url": "https://www.holabirdsports.com/products/asics-novablast-5-mens-black-cobalt-burst"
         },
         {
@@ -109,7 +98,7 @@
       "width": "D"
     }
   ],
-  "generated_at": "2026-09-01T17:32:22.552766+00:00",
+  "generated_at": "2026-09-02T17:33:54.467524+00:00",
   "is_stale": false,
-  "last_scrape_at": "2026-09-01T17:32:19.515015+00:00"
+  "last_scrape_at": "2026-09-02T17:33:52.557246+00:00"
 }
