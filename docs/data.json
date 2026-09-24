@@ -10,7 +10,7 @@
         "retailer": "running_warehouse",
         "source_url": "https://www.runningwarehouse.com/ASICS_Novablast_5/descpage-ANB5M4.html"
       },
-      "last_scraped_at": "2026-09-23T18:12:02.129196+00:00",
+      "last_scraped_at": "2026-09-24T18:07:01.009479+00:00",
       "policy_label": "any colorway",
       "rows": [
         {
@@ -43,7 +43,7 @@
           "matches_policy": true,
           "price_usd": 129.95,
           "retailer": "holabird",
-          "scraped_at": "2026-09-23T18:12:02.129196+00:00",
+          "scraped_at": "2026-09-24T18:07:01.009479+00:00",
           "source_url": "https://www.holabirdsports.com/products/asics-novablast-5-mens-black-cobalt-burst"
         },
         {
@@ -56,17 +56,6 @@
           "retailer": "holabird",
           "scraped_at": "2026-07-04T15:02:15.483736+00:00",
           "source_url": "https://www.holabirdsports.com/products/asics-novablast-5-mens-illusion-blue-light-blue"
-        },
-        {
-          "colorway_code": null,
-          "colorway_name": "Pure Aqua/Seal Grey",
-          "image_url": "https://www.holabirdsports.com/cdn/shop/files/042363_3.jpg?v=1736442485",
-          "in_stock": false,
-          "matches_policy": true,
-          "price_usd": 129.95,
-          "retailer": "holabird",
-          "scraped_at": "2026-06-26T16:12:33.333556+00:00",
-          "source_url": "https://www.holabirdsports.com/products/asics-novablast-5-mens-pure-aqua-seal-grey"
         },
         {
           "colorway_code": null,
@@ -98,7 +87,7 @@
       "width": "D"
     }
   ],
-  "generated_at": "2026-09-23T18:12:04.077747+00:00",
+  "generated_at": "2026-09-24T18:07:03.708548+00:00",
   "is_stale": false,
-  "last_scrape_at": "2026-09-23T18:12:02.129196+00:00"
+  "last_scrape_at": "2026-09-24T18:07:01.009479+00:00"
 }
