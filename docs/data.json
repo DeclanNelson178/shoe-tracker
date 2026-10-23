@@ -5,12 +5,12 @@
       "gender_letter": "M",
       "headline": {
         "colorway_name": "Arctic Blue/Aegean Blue",
-        "image_url": "https://img.runningwarehouse.com/watermark/rs.php?path=ANB5M4-1.jpg&nw=455",
+        "image_url": "https://www.holabirdsports.com/cdn/shop/files/043985_3.jpg?v=1765825814",
         "price_usd": 129.96,
         "retailer": "running_warehouse",
         "source_url": "https://www.runningwarehouse.com/ASICS_Novablast_5/descpage-ANB5M4.html"
       },
-      "last_scraped_at": "2026-10-22T18:14:36.491934+00:00",
+      "last_scraped_at": "2026-10-23T18:03:59.982941+00:00",
       "policy_label": "any colorway",
       "rows": [
         {
@@ -23,6 +23,17 @@
           "retailer": "holabird",
           "scraped_at": "2026-08-02T14:58:23.777014+00:00",
           "source_url": "https://www.holabirdsports.com/products/asics-novablast-5-atc-mens-white-tuna-blue"
+        },
+        {
+          "colorway_code": "ANB5M4",
+          "colorway_name": "Arctic Blue/Aegean Blue",
+          "image_url": "https://www.holabirdsports.com/cdn/shop/files/043985_3.jpg?v=1765825814",
+          "in_stock": false,
+          "matches_policy": true,
+          "price_usd": 129.95,
+          "retailer": "holabird",
+          "scraped_at": "2026-10-23T18:03:59.982941+00:00",
+          "source_url": "https://www.holabirdsports.com/products/asics-novablast-5-mens-arctic-blue-aegean-blue"
         },
         {
           "colorway_code": null,
@@ -60,7 +71,7 @@
         {
           "colorway_code": "ANB5M4",
           "colorway_name": "Arctic Blue/Aegean Blue",
-          "image_url": "https://img.runningwarehouse.com/watermark/rs.php?path=ANB5M4-1.jpg&nw=455",
+          "image_url": "https://www.holabirdsports.com/cdn/shop/files/043985_3.jpg?v=1765825814",
           "in_stock": true,
           "matches_policy": true,
           "price_usd": 129.96,
@@ -76,7 +87,7 @@
       "width": "D"
     }
   ],
-  "generated_at": "2026-10-22T18:14:38.796133+00:00",
+  "generated_at": "2026-10-23T18:04:01.936678+00:00",
   "is_stale": false,
-  "last_scrape_at": "2026-10-22T18:14:36.491934+00:00"
+  "last_scrape_at": "2026-10-23T18:03:59.982941+00:00"
 }
