@@ -10,7 +10,7 @@
         "retailer": "running_warehouse",
         "source_url": "https://www.runningwarehouse.com/ASICS_Novablast_5/descpage-ANB5M4.html"
       },
-      "last_scraped_at": "2026-10-29T19:23:10.952197+00:00",
+      "last_scraped_at": "2026-10-30T18:57:35.442293+00:00",
       "policy_label": "any colorway",
       "rows": [
         {
@@ -21,7 +21,7 @@
           "matches_policy": true,
           "price_usd": 129.95,
           "retailer": "holabird",
-          "scraped_at": "2026-10-29T19:23:10.952197+00:00",
+          "scraped_at": "2026-10-30T18:57:20.276788+00:00",
           "source_url": "https://www.holabirdsports.com/products/asics-novablast-5-atc-mens-white-tuna-blue"
         },
         {
@@ -36,9 +36,9 @@
           "source_url": "https://www.holabirdsports.com/products/asics-novablast-5-mens-arctic-blue-aegean-blue"
         },
         {
-          "colorway_code": null,
+          "colorway_code": "A5NM01",
           "colorway_name": "Black/Blue Fade",
-          "image_url": "https://www.holabirdsports.com/cdn/shop/files/043134_3_001cf8d8-5ada-4896-b8e6-74fa316fb9e0.jpg?v=1749061240",
+          "image_url": "https://img.runningwarehouse.com/watermark/rs.php?path=A5NM01-1.jpg&nw=455",
           "in_stock": false,
           "matches_policy": true,
           "price_usd": 129.95,
@@ -78,6 +78,17 @@
           "retailer": "running_warehouse",
           "scraped_at": "2026-09-03T17:28:37.861958+00:00",
           "source_url": "https://www.runningwarehouse.com/ASICS_Novablast_5/descpage-ANB5M4.html"
+        },
+        {
+          "colorway_code": "A5NM01",
+          "colorway_name": "Black/Blue Fade",
+          "image_url": "https://img.runningwarehouse.com/watermark/rs.php?path=A5NM01-1.jpg&nw=455",
+          "in_stock": true,
+          "matches_policy": true,
+          "price_usd": 129.96,
+          "retailer": "running_warehouse",
+          "scraped_at": "2026-10-30T18:57:35.442293+00:00",
+          "source_url": "https://www.runningwarehouse.com/ASICS_Novablast_5/descpage-A5NM01.html"
         }
       ],
       "shoe_display": "ASICS Novablast 5",
@@ -87,7 +98,7 @@
       "width": "D"
     }
   ],
-  "generated_at": "2026-10-29T19:23:13.657747+00:00",
+  "generated_at": "2026-10-30T18:57:36.139846+00:00",
   "is_stale": false,
-  "last_scrape_at": "2026-10-29T19:23:10.952197+00:00"
+  "last_scrape_at": "2026-10-30T18:57:35.442293+00:00"
 }
